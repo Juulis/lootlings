@@ -5,6 +5,7 @@ import { fireAttack, useSkill } from "./actions.mjs";
 import { bindInput } from "./input.mjs";
 import { update } from "./sim.mjs";
 import { draw } from "./view.mjs";
+import { bindInventory } from "./inventory.mjs";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -31,6 +32,8 @@ async function lockLandscape() {
 bindLoot(state);
 bindAgain(state);
 bindInput(state, { canvas, fireAttack, useSkill });
+bindInventory(state);
+window.addEventListener("lootlings-inv", () => document.getElementById("inv-btn")?.click());
 renderMenu((id) => startRun(state, id));
 resize();
 
