@@ -105,14 +105,20 @@ test("alla sprites är 16x16 med giltig palett", () => {
 
 test("hjältar, monster och loot har frames", () => {
   ["knight", "mage", "archer", "slime", "bat", "shroom", "boss"].forEach((kind) => {
-    const frame = frameFor(kind, 0);
-    parseSprite(frame);
-    assert(ACTOR_FRAMES[kind].includes(frame), kind);
+    ["idle", "walk", "attack"].forEach((pose) => {
+      const frame = frameFor(kind, 0, pose);
+      parseSprite(frame);
+      const bag = ACTOR_FRAMES[kind][pose] || ACTOR_FRAMES[kind].idle;
+      assert(bag.includes(frame), `${kind} ${pose}`);
+    });
   });
   SLOTS.forEach((slot) => parseSprite(SLOT_SPRITES[slot]));
-  const slimeA = frameFor("slime", 0);
-  const slimeB = frameFor("slime", 230);
+  const slimeA = frameFor("slime", 0, "idle");
+  const slimeB = frameFor("slime", 200, "idle");
   assert(slimeA !== slimeB, "slem ska blinka mellan frames");
+  parseSprite("slash");
+  parseSprite("spark0");
+  assert(frameFor("knight", 0, "walk") !== frameFor("knight", 200, "walk"), "riddare går");
 });
 
 console.log(`\n${passed} tester godkända`);
