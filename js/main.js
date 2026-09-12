@@ -1,6 +1,6 @@
 import { CLASSES, createHero, equippedBonus, applyLevelUp } from "./classes.mjs";
 import { lootFromKill, compareItems } from "./loot.mjs";
-import { dist, moveTowards, enemyStats, inRange } from "./combat.mjs";
+import { dist, moveTowards, enemyStats, inRange, nearestTarget, readMoveVector, isAttackHeld, shouldSwing, applyMove } from "./combat.mjs";
 import {
   bakeSprite,
   drawDungeon,
@@ -31,6 +31,7 @@ const state = {
   keys: {},
   pointer: { x: 0, y: 0, down: false },
   stick: { x: 0, y: 0, active: false },
+  touchAttack: false,
   attackTimer: 0,
   skillTimer: 0,
   invuln: 0,
@@ -282,16 +283,7 @@ function spawnShot(aim, dmg, r, splash) {
 }
 
 function nearestEnemy() {
-  let best = null;
-  let bestD = 1e9;
-  for (const en of state.enemies) {
-    const d = dist(state.pos, en);
-    if (d < bestD) {
-      best = en;
-      bestD = d;
-    }
-  }
-  return best;
+  return nearestTarget(state.pos, state.enemies);
 }
 
 function hitEnemy(en, dmg) {
@@ -400,7 +392,20 @@ stickEl.addEventListener("pointerup", () => {
   state.stick.y = 0;
   knob.style.transform = "";
 });
-document.getElementById("atk-btn").onclick = fireAttack;
+const atkBtn = document.getElementById("atk-btn");
+atkBtn.addEventListener("pointerdown", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  atkBtn.setPointerCapture(e.pointerId);
+  state.touchAttack = true;
+  fireAttack();
+});
+atkBtn.addEventListener("pointerup", () => {
+  state.touchAttack = false;
+});
+atkBtn.addEventListener("pointercancel", () => {
+  state.touchAttack = false;
+});
 document.getElementById("skl-btn").onclick = useSkill;
 
 function worldFromScreen() {
@@ -419,23 +424,22 @@ function update(dt) {
   state.skillTimer = Math.max(0, state.skillTimer - dt);
   state.invuln = Math.max(0, state.invuln - dt);
 
-  let mx = 0;
-  let my = 0;
-  if (state.keys.w || state.keys.arrowup) my -= 1;
-  if (state.keys.s || state.keys.arrowdown) my += 1;
-  if (state.keys.a || state.keys.arrowleft) mx -= 1;
-  if (state.keys.d || state.keys.arrowright) mx += 1;
-  mx += state.stick.x;
-  my += state.stick.y;
-  const mag = Math.hypot(mx, my);
-  if (mag > 1) {
-    mx /= mag;
-    my /= mag;
-  }
-  state.pos.x = Math.max(40, Math.min(state.map.w - 40, state.pos.x + mx * s.speed * dt));
-  state.pos.y = Math.max(40, Math.min(state.map.h - 40, state.pos.y + my * s.speed * dt));
+  const move = readMoveVector(state.keys, state.stick);
+  state.pos = applyMove(state.pos, move, s.speed, dt, {
+    min: 40,
+    maxX: state.map.w - 40,
+    maxY: state.map.h - 40,
+  });
 
-  if (state.pointer.down) fireAttack();
+  const target = nearestEnemy();
+  const held = isAttackHeld({
+    keys: state.keys,
+    pointerDown: state.pointer.down,
+    touchAttack: state.touchAttack,
+  });
+  if (shouldSwing({ held, targetInRange: inRange(state.pos, target || { x: 1e9, y: 1e9 }, s.range), attackTimer: state.attackTimer })) {
+    fireAttack();
+  }
 
   state.enemies.forEach((en) => {
     const hold = en.isBoss ? 70 : 36;
