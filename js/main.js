@@ -1,6 +1,6 @@
 import { createState } from "./game-state.mjs";
 import { renderMenu } from "./hud.mjs";
-import { startRun, bindLoot, bindAgain } from "./run.mjs";
+import { startRun, bindLoot, bindAgain, bindSkills } from "./run.mjs";
 import { fireAttack, useSkill } from "./actions.mjs";
 import { bindInput } from "./input.mjs";
 import { update } from "./sim.mjs";
@@ -30,6 +30,7 @@ async function lockLandscape() {
 
 bindLoot(state);
 bindAgain(state);
+bindSkills(state);
 bindInput(state, { canvas, fireAttack, useSkill });
 renderMenu((id) => startRun(state, id));
 resize();
