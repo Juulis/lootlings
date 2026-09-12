@@ -30,7 +30,7 @@ export function spawnShot(state, aim, dmg, r, splash) {
 
 export function fireAttack(state) {
   const h = state.hero;
-  if (!h || state.mode !== "play" || state.attackTimer > 0) return;
+  if (!h || state.mode !== "play" || state.invOpen || state.attackTimer > 0) return;
   const s = statsOf(h);
   state.attackTimer = h.attackCd;
   state.attackFlash = 0.22;
@@ -51,7 +51,13 @@ export function fireAttack(state) {
 
 export function useSkill(state) {
   const h = state.hero;
-  if (!h || state.skillTimer > 0) return;
+  if (!h || state.mode !== "play" || state.invOpen || state.skillTimer > 0) return;
+  const cost = h.classId === "mage" ? 28 : h.classId === "archer" ? 18 : 16;
+  if (h.mana < cost) {
+    log("Inte tillräckligt med mana!");
+    return;
+  }
+  h.mana -= cost;
   const s = statsOf(h);
   state.skillTimer = CLASSES[h.classId].skill.cd;
   if (h.classId === "knight") {

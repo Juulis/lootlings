@@ -6,6 +6,11 @@ export function bindInput(state, { canvas, fireAttack, useSkill }) {
       fireAttack(state);
     }
     if (e.key.toLowerCase() === "e" || e.key === "Shift") useSkill(state);
+    if (e.key.toLowerCase() === "i" || e.key === "Tab" || e.key === "Escape") {
+      e.preventDefault();
+      const ev = new CustomEvent("lootlings-inv");
+      window.dispatchEvent(ev);
+    }
   });
   window.addEventListener("keyup", (e) => {
     state.keys[e.key.toLowerCase()] = false;
