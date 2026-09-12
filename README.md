@@ -2,10 +2,12 @@
 
 Diablo-liknande skattjakt för barn. Körs i webbläsaren med tangentbord, mus och mobilstyrning.
 
-## Spela
+## Länkar
 
-- [GitHub-repo](https://github.com/Juulis/lootlings)
-- Vercel-URL publiceras när projektet är kopplat
+- Repo: https://github.com/Juulis/lootlings
+- Vercel-projekt: lootlings (konto juuffy)
+- Pages: slå på under Settings → Pages → Source = GitHub Actions, kör sedan workflown `Deploy GitHub Pages`
+- Efter Pages: https://juulis.github.io/lootlings/
 
 ## Loop
 
@@ -22,11 +24,13 @@ Diablo-liknande skattjakt för barn. Körs i webbläsaren med tangentbord, mus o
 - E eller Shift för klasskraft
 - Mobil: styrpinne + knappar
 
+## Backend
+
+`api/scores.js` är Vercel-funktion för topplista. Importera repot i Vercel (team juuffy) för automatisk deploy + API.
+
 ## Utveckling
 
 ```bash
 npm test
 npx serve .
 ```
-
-Frontend är statisk. `api/scores.js` är Vercel-funktion för topplista.
