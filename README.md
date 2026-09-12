@@ -24,8 +24,10 @@ Pixelgrafik i `js/sprites.mjs`: hjältar, slime/fladdermus/svamp, pumpaboss, por
 - WASD / piltangenter för att gå
 - Håll mellanslag, mus eller Slå-knappen för att slå *samtidigt som du går*
 - Auto-attack mot närmaste monster i räckvidd
-- E eller Shift för klasskraft
-- Mobil: styrpinne + håll Slå
+- E eller Shift använder vald kraft (1/2/3 byter)
+- Level-up ger skillpoint: lås upp Smäll, Stjärna eller Salva
+- Upplåsta krafter levlar när du använder dem
+- Mobil: styrpinne + A slå, B kraft
 
 ## Backend
 

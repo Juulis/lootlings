@@ -1,3 +1,5 @@
+import { openSkillPick } from "./run.mjs";
+
 export function bindInput(state, { canvas, fireAttack, useSkill }) {
   window.addEventListener("keydown", (e) => {
     state.keys[e.key.toLowerCase()] = true;
@@ -6,6 +8,12 @@ export function bindInput(state, { canvas, fireAttack, useSkill }) {
       fireAttack(state);
     }
     if (e.key.toLowerCase() === "e" || e.key === "Shift") useSkill(state);
+    if (e.key === "1") useSkill(state, "smash");
+    if (e.key === "2") useSkill(state, "star");
+    if (e.key === "3") useSkill(state, "volley");
+    if (e.key.toLowerCase() === "k") {
+      openSkillPick(state);
+    }
   });
   window.addEventListener("keyup", (e) => {
     state.keys[e.key.toLowerCase()] = false;

@@ -209,3 +209,12 @@ button.ghost {
   header { padding: 4px 10px; }
   h1 { font-size: 1rem; }
 }
+
+#hero-stats {
+  display: block;
+  font-size: .75rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+#skill-overlay .classes { margin: 12px 0; }
+#skill-overlay .ghost { margin-top: 4px; }

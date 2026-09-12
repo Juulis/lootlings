@@ -1,3 +1,5 @@
+import { createSkillBook, applyLevelUpRewards } from "./skills.mjs";
+
 export const CLASSES = {
   knight: {
     id: "knight",
@@ -49,6 +51,9 @@ export function createHero(classId) {
     kills: 0,
     gear: { weapon: null, armor: null, boots: null, charm: null },
     bag: [],
+    skillPoints: 1,
+    skills: createSkillBook(),
+    activeSkill: null,
   };
 }
 
@@ -83,5 +88,6 @@ export function applyLevelUp(hero) {
   hero.hp = hero.maxHp;
   hero.damage += hero.classId === "mage" ? 3 : 2;
   if (hero.level % 3 === 0) hero.luck += 1;
+  applyLevelUpRewards(hero);
   return hero;
 }

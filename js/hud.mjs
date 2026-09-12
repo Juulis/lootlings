@@ -1,6 +1,7 @@
 import { CLASSES } from "./classes.mjs";
 import { bakeSprite, SLOT_SPRITES } from "./sprites.mjs";
 import { statsOf } from "./stats.mjs";
+import { SKILLS } from "./skills.mjs";
 
 export function log(msg) {
   const el = document.getElementById("log");
@@ -17,7 +18,15 @@ export function refreshHud(state) {
   document.getElementById("hp-fill").style.width = `${Math.max(0, (h.hp / s.maxHp) * 100)}%`;
   document.getElementById("xp-fill").style.width = `${Math.max(0, (h.xp / h.xpToLevel) * 100)}%`;
   document.getElementById("meta").textContent =
-    `${h.name} Nv ${h.level} · Våning ${h.floor} · Guld ${h.gold} · Monster ${h.kills}`;
+    `${h.name} Nv ${h.level} · Våning ${h.floor} · Guld ${h.gold} · Skada ${s.damage} · Fart ${Math.round(s.speed)}`;
+  const statsEl = document.getElementById("hero-stats");
+  if (statsEl) {
+    const book = Object.values(SKILLS).map((def) => {
+      const sl = h.skills?.[def.id];
+      return sl?.unlocked ? `${def.name} Nv${sl.level}` : `${def.name} låst`;
+    }).join(" · ");
+    statsEl.textContent = `Tur ${s.luck} · Räckvidd ${Math.round(s.range)} · Poäng ${h.skillPoints || 0} · ${book}`;
+  }
   const gear = document.getElementById("gear");
   gear.innerHTML = "";
   ["weapon", "armor", "boots", "charm"].forEach((slot) => {
@@ -38,7 +47,7 @@ export function renderMenu(onPick) {
     const btn = document.createElement("button");
     btn.className = "class-btn";
     const thumb = bakeSprite(c.id, 3);
-    btn.innerHTML = `<img class="class-art" alt="" src="${thumb}" /><b>${c.name}</b><small>${c.blurb}</small><br><small>${c.skill.name}: ${c.skill.desc}</small>`;
+    btn.innerHTML = `<img class="class-art" alt="" src="${thumb}" /><b>${c.name}</b><small>${c.blurb}</small><br><small>Smäll · Stjärna · Salva</small>`;
     btn.style.borderColor = c.color;
     btn.onclick = () => onPick(c.id);
     box.appendChild(btn);
@@ -47,8 +56,10 @@ export function renderMenu(onPick) {
 
 export function setSkillLabel(state) {
   if (!state.hero) return;
-  const ready = state.skillTimer <= 0;
-  document.getElementById("skl-btn").textContent = ready
-    ? CLASSES[state.hero.classId].skill.name
-    : state.skillTimer.toFixed(1);
+  const id = state.hero.activeSkill;
+  const def = id && SKILLS[id];
+  const cd = (state.skillCds && id && state.skillCds[id]) || 0;
+  const btn = document.getElementById("skl-btn");
+  if (!def) btn.textContent = "B";
+  else btn.textContent = cd > 0 ? cd.toFixed(1) : def.name;
 }

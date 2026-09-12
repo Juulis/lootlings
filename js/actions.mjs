@@ -4,6 +4,7 @@ import { statsOf } from "./stats.mjs";
 import { log } from "./hud.mjs";
 import { burst } from "./fx.mjs";
 import { killEnemy } from "./run.mjs";
+import { SKILLS, skillStats, gainSkillXp, setActiveSkill } from "./skills.mjs";
 
 export function nearestEnemy(state) {
   return nearestTarget(state.pos, state.enemies);
@@ -49,34 +50,47 @@ export function fireAttack(state) {
   }
 }
 
-export function useSkill(state) {
+export function useSkill(state, skillId) {
   const h = state.hero;
-  if (!h || state.skillTimer > 0) return;
+  if (!h) return;
+  const id = skillId || h.activeSkill;
+  const slot = id && h.skills?.[id];
+  if (!slot?.unlocked) {
+    log("Lås upp en kraft med skillpoint vid level-up!");
+    return;
+  }
+  const cdLeft = (state.skillCds && state.skillCds[id]) || 0;
+  if (cdLeft > 0) return;
+  setActiveSkill(h, id);
+  const def = SKILLS[id];
+  const st = skillStats(def, slot);
   const s = statsOf(h);
-  state.skillTimer = CLASSES[h.classId].skill.cd;
-  if (h.classId === "knight") {
+  state.skillCds = state.skillCds || {};
+  state.skillCds[id] = st.cd;
+  state.skillTimer = st.cd;
+  const dmg = s.damage * 1.35 * st.dmgMult;
+  if (def.type === "melee") {
     state.enemies.forEach((en) => {
-      if (dist(state.pos, en) < 120) {
-        hitEnemy(state, en, s.damage * 1.6);
+      if (dist(state.pos, en) < st.radius) {
+        hitEnemy(state, en, dmg);
         const away = moveTowards(en, state.pos, -280, 0.2);
         en.x = away.x;
         en.y = away.y;
       }
     });
-    log("Sköldsmäll!");
-  } else if (h.classId === "mage") {
+  } else if (def.type === "aoe") {
     const t = nearestEnemy(state) || { x: state.pos.x + 80, y: state.pos.y };
     state.projectiles.push({
-      x: t.x, y: t.y, vx: 0, vy: 0, dmg: s.damage * 1.4, r: 70, life: 0.35, splash: true, star: true,
+      x: t.x, y: t.y, vx: 0, vy: 0, dmg, r: 62 + slot.level * 4, life: 0.35, splash: true, star: true,
     });
-    log("Stjärnregn!");
   } else {
     const t = nearestEnemy(state) || { x: state.pos.x + 80, y: state.pos.y };
     for (let i = -1; i <= 1; i++) {
-      spawnShot(state, { x: t.x, y: t.y + i * 18 }, s.damage * 0.85, 10, false);
+      spawnShot(state, { x: t.x, y: t.y + i * 18 }, dmg * 0.8, 10, false);
     }
-    log("Pilstorm!");
   }
+  const res = gainSkillXp(h, id, 10);
+  log(res.leveled ? `${def.name} Nv ${res.level}!` : `${def.name}!`);
 }
 
 export function tickProjectiles(state, dt) {
