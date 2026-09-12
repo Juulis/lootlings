@@ -31,7 +31,7 @@ export function spawnShot(state, aim, dmg, r, splash) {
 
 export function fireAttack(state) {
   const h = state.hero;
-  if (!h || state.mode !== "play" || state.attackTimer > 0) return;
+  if (!h || state.mode !== "play" || state.invOpen || state.attackTimer > 0) return;
   const s = statsOf(h);
   state.attackTimer = h.attackCd;
   state.attackFlash = 0.22;
@@ -52,7 +52,7 @@ export function fireAttack(state) {
 
 export function useSkill(state, skillId) {
   const h = state.hero;
-  if (!h) return;
+  if (!h || state.invOpen) return;
   const id = skillId || h.activeSkill;
   const slot = id && h.skills?.[id];
   if (!slot?.unlocked) {
@@ -65,6 +65,12 @@ export function useSkill(state, skillId) {
   const def = SKILLS[id];
   const st = skillStats(def, slot);
   const s = statsOf(h);
+  const cost = 12 + slot.level * 4;
+  if ((h.mana || 0) < cost) {
+    log("Inte tillräckligt med mana!");
+    return;
+  }
+  h.mana -= cost;
   state.skillCds = state.skillCds || {};
   state.skillCds[id] = st.cd;
   state.skillTimer = st.cd;
