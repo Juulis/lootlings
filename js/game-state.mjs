@@ -21,5 +21,6 @@ export function createState() {
     pendingLoot: [],
     last: 0,
     portal: null,
+    invOpen: false,
   };
 }
