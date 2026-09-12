@@ -1,5 +1,5 @@
-/** Pose-tabell. Extra frames ligger i anim-frames.mjs och slås ihop här. */
-import { SPRITES, ACTOR_FRAMES as BASE } from "./sprites.mjs";
+/** Pose-tabell. Extra frames slås ihop på SPRITES. */
+import { SPRITES } from "./sprites.mjs";
 import { EXTRA_SPRITES } from "./anim-frames.mjs";
 
 Object.assign(SPRITES, EXTRA_SPRITES);
@@ -13,10 +13,6 @@ export const POSES = {
   shroom: { idle: ["shroom", "shroom1"], walk: ["shroom", "shroom1"], attack: ["shroom1"] },
   boss: { idle: ["boss", "boss1"], walk: ["boss", "boss1"], attack: ["boss1"] },
 };
-
-for (const [k, v] of Object.entries(POSES)) {
-  BASE[k] = v;
-}
 
 export function framesFor(kind, pose = "idle") {
   const set = POSES[kind] || POSES.slime;
