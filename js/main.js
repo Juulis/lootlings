@@ -1,6 +1,16 @@
 import { CLASSES, createHero, equippedBonus, applyLevelUp } from "./classes.mjs";
 import { lootFromKill, compareItems } from "./loot.mjs";
 import { dist, moveTowards, enemyStats, inRange } from "./combat.mjs";
+import {
+  bakeSprite,
+  drawDungeon,
+  drawHpBar,
+  drawLootIcon,
+  drawPortal,
+  drawSprite,
+  frameFor,
+  SLOT_SPRITES,
+} from "./sprites.mjs";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -63,7 +73,8 @@ function renderMenu() {
   Object.values(CLASSES).forEach((c) => {
     const btn = document.createElement("button");
     btn.className = "class-btn";
-    btn.innerHTML = `<b>${c.name}</b><small>${c.blurb}</small><br><small>${c.skill.name}: ${c.skill.desc}</small>`;
+    const thumb = bakeSprite(c.id, 3);
+    btn.innerHTML = `<img class="class-art" alt="" src="${thumb}" /><b>${c.name}</b><small>${c.blurb}</small><br><small>${c.skill.name}: ${c.skill.desc}</small>`;
     btn.style.borderColor = c.color;
     btn.onclick = () => startRun(c.id);
     box.appendChild(btn);
@@ -126,7 +137,8 @@ function refreshHud() {
     const d = document.createElement("div");
     d.className = "slot";
     d.style.borderColor = it?.color || "#fff3";
-    d.textContent = it ? `${it.name}\n${it.power}` : slot;
+    const icon = bakeSprite(SLOT_SPRITES[slot] || "charm", 2);
+    d.innerHTML = `<img alt="" src="${icon}" /><span>${it ? `${it.name} ${it.power}` : slot}</span>`;
     gear.appendChild(d);
   });
 }
@@ -180,6 +192,7 @@ function openLoot() {
   const better = compareItems(cur, item) < 0;
   document.getElementById("loot-body").innerHTML = `
     <div class="loot-row" style="border-left:6px solid ${item.color}">
+      <img class="loot-art" alt="" src="${bakeSprite(SLOT_SPRITES[item.slot] || "charm", 3)}" />
       <div>
         <b style="color:${item.color}">${item.rarityName}</b> ${item.name}<br>
         <small>${item.slot} · styrka ${item.power}${cur ? ` (nu ${cur.power})` : ""}</small>
@@ -474,69 +487,46 @@ function update(dt) {
 
 function draw() {
   const { camX, camY, viewW, viewH } = worldFromScreen();
+  const now = performance.now();
   ctx.clearRect(0, 0, viewW, viewH);
   ctx.save();
   ctx.translate(-camX, -camY);
 
-  ctx.fillStyle = "#1d3b32";
-  ctx.fillRect(0, 0, state.map.w, state.map.h);
-  ctx.fillStyle = "#2f5a46";
-  for (let y = 0; y < state.map.h; y += 48) {
-    for (let x = 0; x < state.map.w; x += 48) {
-      if ((x + y) % 96 === 0) ctx.fillRect(x, y, 46, 46);
-    }
-  }
-  ctx.strokeStyle = "#7cffb2";
-  ctx.lineWidth = 8;
-  ctx.strokeRect(4, 4, state.map.w - 8, state.map.h - 8);
+  drawDungeon(ctx, state.map, now);
 
   if (state.portal) {
-    ctx.beginPath();
-    ctx.fillStyle = "#9ae6ff";
-    ctx.arc(state.portal.x, state.portal.y, 26 + Math.sin(performance.now() / 180) * 4, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#1a1430";
-    ctx.font = "12px Trebuchet MS";
-    ctx.fillText("Nästa", state.portal.x - 16, state.portal.y + 4);
+    drawPortal(ctx, state.portal.x, state.portal.y, now);
+    ctx.fillStyle = "#fff8e7";
+    ctx.font = "bold 12px Trebuchet MS";
+    ctx.fillText("Nästa", state.portal.x - 16, state.portal.y + 34);
   }
 
   state.pickups.forEach((p) => {
-    ctx.fillStyle = p.color;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
-    ctx.fill();
+    const bounce = Math.sin(now / 140 + p.x) * 3;
+    if (p.slot) drawLootIcon(ctx, p.slot, p.x, p.y + bounce, p.color);
+    else drawSprite(ctx, "gold", p.x, p.y + bounce, { scale: 2, shadow: false });
   });
 
   state.enemies.forEach((en) => {
-    ctx.beginPath();
-    ctx.fillStyle = en.isBoss ? "#ffb347" : en.kind === "bat" ? "#8ab4ff" : en.kind === "shroom" ? "#f48fb1" : "#7dce7a";
-    ctx.arc(en.x, en.y, en.isBoss ? 28 : 16, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#000";
-    ctx.beginPath();
-    ctx.arc(en.x - 5, en.y - 3, 3, 0, Math.PI * 2);
-    ctx.arc(en.x + 5, en.y - 3, 3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#0006";
-    ctx.fillRect(en.x - 16, en.y - (en.isBoss ? 40 : 26), 32, 5);
-    ctx.fillStyle = "#7cf0c2";
-    ctx.fillRect(en.x - 16, en.y - (en.isBoss ? 40 : 26), 32 * Math.max(0, en.hp / en.maxHp), 5);
+    const kind = en.isBoss ? "boss" : en.kind;
+    const facing = en.x < state.pos.x;
+    drawSprite(ctx, frameFor(kind, now + en.id * 90), en.x, en.y, {
+      scale: en.isBoss ? 4 : 3,
+      bob: Math.sin(now / 180 + en.id) * (en.kind === "bat" ? 4 : 1.5),
+      flip: facing,
+    });
+    drawHpBar(ctx, en.x, en.y - (en.isBoss ? 40 : 28), en.hp / en.maxHp, en.isBoss ? 44 : 32);
   });
 
   if (state.hero) {
-    const c = CLASSES[state.hero.classId];
-    ctx.beginPath();
-    ctx.fillStyle = c.color;
-    ctx.arc(state.pos.x, state.pos.y, 18, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = c.accent;
-    ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.fillStyle = "#fff";
-    ctx.beginPath();
-    ctx.arc(state.pos.x - 5, state.pos.y - 3, 3, 0, Math.PI * 2);
-    ctx.arc(state.pos.x + 5, state.pos.y - 3, 3, 0, Math.PI * 2);
-    ctx.fill();
+    const moving = state.keys.w || state.keys.a || state.keys.s || state.keys.d
+      || state.keys.arrowup || state.keys.arrowleft || state.keys.arrowdown || state.keys.arrowright
+      || Math.hypot(state.stick.x, state.stick.y) > 0.1;
+    drawSprite(ctx, state.hero.classId, state.pos.x, state.pos.y, {
+      scale: 3,
+      bob: moving ? Math.sin(now / 90) * 2 : Math.sin(now / 400) * 1,
+      flip: state.pointer.x < canvas.clientWidth / 2,
+    });
   }
 
   state.projectiles.forEach((p) => {
@@ -544,6 +534,12 @@ function draw() {
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.star ? p.r : 6, 0, Math.PI * 2);
     ctx.fill();
+    if (!p.star) {
+      ctx.fillStyle = p.splash ? "#9ae6ff" : "#ff8a3d";
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
   });
 
   state.particles.forEach((p) => {
