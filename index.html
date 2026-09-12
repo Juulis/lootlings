@@ -2,11 +2,21 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="screen-orientation" content="landscape" />
   <title>Lootlings — skattjakt för barn</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+  <div id="tilt">
+    <div>
+      <b>Vänd telefonen</b>
+      <p>Lootlings spelas liggande, som en Nintendo.</p>
+    </div>
+  </div>
   <div id="app">
     <header>
       <h1>Lootlings</h1>
@@ -24,13 +34,13 @@
       </div>
       <div id="touch" class="hidden">
         <div class="stick" id="stick"><div class="stick-knob" id="knob"></div></div>
-        <button class="atk" id="atk-btn" type="button">Slå</button>
-        <button class="skl" id="skl-btn" type="button">Kraft</button>
+        <button class="atk" id="atk-btn" type="button">A</button>
+        <button class="skl" id="skl-btn" type="button">B</button>
       </div>
       <div class="overlay" id="overlay">
         <div class="card">
           <h2>Välj din hjälte</h2>
-          <p>Gå ner i grottan, slå söta monster och samla skatter. Gå och slå samtidigt: WASD/pilar + håll mellanslag eller mus. Mobil: styrpinne + håll Slå. E är kraft.</p>
+          <p>Gå ner i grottan, slå söta monster och samla skatter. Gå och slå samtidigt: WASD/pilar + håll mellanslag eller mus. Mobil: liggande läge, styrpinne + A. B är kraft.</p>
           <div class="classes" id="class-picks"></div>
         </div>
       </div>
