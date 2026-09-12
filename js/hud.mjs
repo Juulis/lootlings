@@ -5,10 +5,21 @@ import { SKILLS } from "./skills.mjs";
 
 export function log(msg) {
   const el = document.getElementById("log");
+  if (!el) return;
   const line = document.createElement("div");
   line.textContent = msg;
   el.prepend(line);
   while (el.children.length > 5) el.lastChild.remove();
+}
+
+export function toast(msg) {
+  log(msg);
+  const el = document.getElementById("toast");
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.remove("hidden");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el.classList.add("hidden"), 2200);
 }
 
 export function refreshHud(state) {
