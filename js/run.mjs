@@ -9,8 +9,11 @@ import { SKILLS, SKILL_IDS, unlockSkill, setActiveSkill, skillXpToLevel } from "
 
 export function startRun(state, classId) {
   state.hero = createHero(classId);
-  state.hero.maxHp = statsOf(state.hero).maxHp;
-  state.hero.hp = state.hero.maxHp;
+  const st0 = statsOf(state.hero);
+  state.hero.maxHp = st0.maxHp;
+  state.hero.hp = st0.maxHp;
+  state.hero.mana = st0.maxMana;
+  state.invOpen = false;
   state.mode = "play";
   document.getElementById("overlay").classList.add("hidden");
   document.getElementById("dead-overlay").classList.add("hidden");
