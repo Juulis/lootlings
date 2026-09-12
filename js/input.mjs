@@ -8,6 +8,10 @@ export function bindInput(state, { canvas, fireAttack, useSkill }) {
       fireAttack(state);
     }
     if (e.key.toLowerCase() === "e" || e.key === "Shift") useSkill(state);
+    if (e.key.toLowerCase() === "i" || e.key === "Tab") {
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent("lootlings-inv"));
+    }
     if (e.key === "1") useSkill(state, "smash");
     if (e.key === "2") useSkill(state, "star");
     if (e.key === "3") useSkill(state, "volley");

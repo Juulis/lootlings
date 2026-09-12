@@ -9,6 +9,7 @@
   <meta name="screen-orientation" content="landscape" />
   <title>Lootlings — skattjakt för barn</title>
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/inv.css" />
 </head>
 <body>
   <div id="tilt">
@@ -21,10 +22,9 @@
     <header>
       <h1>Lootlings</h1>
       <div class="stats">
-        <span>HP <span class="bar hp"><i id="hp-fill" style="width:100%"></i></span></span>
-        <span>XP <span class="bar xp"><i id="xp-fill" style="width:0%"></i></span></span>
         <span id="meta">Välj en hjälte</span>
         <span id="hero-stats"></span>
+        <button type="button" id="inv-btn" class="inv-open">Väska</button>
       </div>
     </header>
     <div id="stage-wrap">
@@ -37,11 +37,28 @@
         <div class="stick" id="stick"><div class="stick-knob" id="knob"></div></div>
         <button class="atk" id="atk-btn" type="button">A</button>
         <button class="skl" id="skl-btn" type="button">B</button>
+        <button class="invt" id="inv-touch" type="button">I</button>
+      </div>
+      <div id="d2hud">
+        <div class="orb life">
+          <div class="orb-glass"></div>
+          <div class="orb-fill" id="hp-fill"></div>
+          <span id="hp-txt">0/0</span>
+        </div>
+        <div class="xp-wrap">
+          <div class="xp-fill" id="xp-fill"></div>
+          <span id="xp-txt">XP</span>
+        </div>
+        <div class="orb mana">
+          <div class="orb-glass"></div>
+          <div class="orb-fill" id="mp-fill"></div>
+          <span id="mp-txt">0/0</span>
+        </div>
       </div>
       <div class="overlay" id="overlay">
         <div class="card">
           <h2>Välj din hjälte</h2>
-          <p>Gå ner i grottan. Välj en kraft med skillpoint, sen levlar den när du använder den. WASD + håll attack. E / 1 2 3 är krafter. Mobil: pinne + A/B.</p>
+          <p>Gå ner i grottan. Välj en kraft med skillpoint. I öppnar väskan. WASD + håll attack. E / 1 2 3 är krafter.</p>
           <div class="classes" id="class-picks"></div>
         </div>
       </div>
@@ -59,6 +76,16 @@
           <p>Lås upp med skillpoint vid level-up. Sen blir kraften starkare när du använder den. 1/2/3 eller E.</p>
           <div class="classes" id="skill-picks"></div>
           <button class="ghost" id="skill-later" type="button">Senare</button>
+        </div>
+      </div>
+      <div class="overlay hidden" id="inv-overlay">
+        <div class="card inv-card">
+          <h2>Väska</h2>
+          <p>Klicka en sak i väskan för att ta på den. I / Tab stänger.</p>
+          <div id="inv-equip"></div>
+          <h3>Ryggsäck</h3>
+          <div id="inv-bag"></div>
+          <button class="ghost" id="inv-close" type="button">Stäng</button>
         </div>
       </div>
       <div class="overlay hidden" id="dead-overlay">

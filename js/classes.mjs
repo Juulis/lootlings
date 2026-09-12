@@ -7,7 +7,7 @@ export const CLASSES = {
     blurb: "Stark och trygg. Slåss nära och skyddar sig.",
     color: "#5b8def",
     accent: "#ffe08a",
-    stats: { hp: 140, speed: 145, range: 58, damage: 14, attackCd: 0.42, luck: 1 },
+    stats: { hp: 140, mana: 45, speed: 145, range: 58, damage: 14, attackCd: 0.42, luck: 1 },
     skill: { name: "Sköldsmäll", cd: 6, desc: "Knuffar och skadar alla nära monster." },
   },
   mage: {
@@ -16,7 +16,7 @@ export const CLASSES = {
     blurb: "Kastar gnistrar långt bort. Lite skör, stor smäll.",
     color: "#c084fc",
     accent: "#9ae6ff",
-    stats: { hp: 90, speed: 150, range: 195, damage: 18, attackCd: 0.55, luck: 3 },
+    stats: { hp: 90, mana: 95, speed: 150, range: 195, damage: 18, attackCd: 0.55, luck: 3 },
     skill: { name: "Stjärnregn", cd: 7, desc: "En stjärna exploderar och träffar flera." },
   },
   archer: {
@@ -25,7 +25,7 @@ export const CLASSES = {
     blurb: "Snabb och precis. Skjuter från avstånd.",
     color: "#3dd68c",
     accent: "#fff1a8",
-    stats: { hp: 105, speed: 175, range: 170, damage: 12, attackCd: 0.32, luck: 2 },
+    stats: { hp: 105, mana: 60, speed: 175, range: 170, damage: 12, attackCd: 0.32, luck: 2 },
     skill: { name: "Pilstorm", cd: 6.5, desc: "Tre pilar mot närmaste monster." },
   },
 };
@@ -41,6 +41,8 @@ export function createHero(classId) {
     xpToLevel: 40,
     hp: s.hp,
     maxHp: s.hp,
+    mana: s.mana,
+    maxMana: s.mana,
     speed: s.speed,
     range: s.range,
     damage: s.damage,
@@ -66,6 +68,7 @@ export function equippedBonus(hero) {
   return {
     damage: weapon,
     maxHp: armor * 2,
+    maxMana: Math.floor(charm * 1.4),
     speed: boots * 1.6,
     luck: Math.floor(charm / 4),
   };
@@ -84,8 +87,11 @@ export function applyLevelUp(hero) {
   hero.level += 1;
   hero.xpToLevel = Math.round(36 + hero.level * 18);
   const hpGain = hero.classId === "knight" ? 18 : hero.classId === "mage" ? 10 : 13;
+  const mpGain = hero.classId === "mage" ? 12 : hero.classId === "archer" ? 8 : 6;
   hero.maxHp += hpGain;
+  hero.maxMana += mpGain;
   hero.hp = hero.maxHp;
+  hero.mana = hero.maxMana;
   hero.damage += hero.classId === "mage" ? 3 : 2;
   if (hero.level % 3 === 0) hero.luck += 1;
   applyLevelUpRewards(hero);

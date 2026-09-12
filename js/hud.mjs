@@ -15,9 +15,23 @@ export function refreshHud(state) {
   const h = state.hero;
   if (!h) return;
   const s = statsOf(h);
-  document.getElementById("hp-fill").style.width = `${Math.max(0, (h.hp / s.maxHp) * 100)}%`;
-  document.getElementById("xp-fill").style.width = `${Math.max(0, (h.xp / h.xpToLevel) * 100)}%`;
-  document.getElementById("meta").textContent =
+  const hpFill = document.getElementById("hp-fill");
+  const mpFill = document.getElementById("mp-fill");
+  const hpTxt = document.getElementById("hp-txt");
+  const mpTxt = document.getElementById("mp-txt");
+  const hpPct = Math.max(0, Math.min(100, (h.hp / Math.max(1, s.maxHp)) * 100));
+  const mpPct = Math.max(0, Math.min(100, (h.mana / Math.max(1, s.maxMana || 1)) * 100));
+  if (hpFill) hpFill.style.height = `${hpPct}%`;
+  if (mpFill) mpFill.style.height = `${mpPct}%`;
+  if (hpTxt) hpTxt.textContent = `${Math.ceil(Math.max(0, h.hp))}/${Math.ceil(s.maxHp)}`;
+  if (mpTxt) mpTxt.textContent = `${Math.ceil(Math.max(0, h.mana || 0))}/${Math.ceil(s.maxMana || 0)}`;
+  const xp = document.getElementById("xp-fill");
+  const xpTxt = document.getElementById("xp-txt");
+  const xpPct = Math.max(0, (h.xp / h.xpToLevel) * 100);
+  if (xp) xp.style.width = `${xpPct}%`;
+  if (xpTxt) xpTxt.textContent = `XP ${h.xp}/${h.xpToLevel}`;
+  const meta = document.getElementById("meta");
+  if (meta) meta.textContent =
     `${h.name} Nv ${h.level} · Våning ${h.floor} · Guld ${h.gold} · Skada ${s.damage} · Fart ${Math.round(s.speed)}`;
   const statsEl = document.getElementById("hero-stats");
   if (statsEl) {
@@ -28,6 +42,7 @@ export function refreshHud(state) {
     statsEl.textContent = `Tur ${s.luck} · Räckvidd ${Math.round(s.range)} · Poäng ${h.skillPoints || 0} · ${book}`;
   }
   const gear = document.getElementById("gear");
+  if (!gear) return;
   gear.innerHTML = "";
   ["weapon", "armor", "boots", "charm"].forEach((slot) => {
     const it = h.gear[slot];
@@ -60,6 +75,7 @@ export function setSkillLabel(state) {
   const def = id && SKILLS[id];
   const cd = (state.skillCds && id && state.skillCds[id]) || 0;
   const btn = document.getElementById("skl-btn");
+  if (!btn) return;
   if (!def) btn.textContent = "B";
   else btn.textContent = cd > 0 ? cd.toFixed(1) : def.name;
 }

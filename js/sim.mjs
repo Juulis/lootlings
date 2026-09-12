@@ -4,9 +4,11 @@ import { refreshHud } from "./hud.mjs";
 import { burst, tickParticles } from "./fx.mjs";
 import { die, nextFloor } from "./run.mjs";
 import { fireAttack, nearestEnemy, tickProjectiles } from "./actions.mjs";
+import { regenMana } from "./inventory.mjs";
 
 export function update(state, dt) {
   if (state.mode !== "play" || !state.hero) return;
+  if (state.invOpen) { tickParticles(state, dt); return; }
   const h = state.hero;
   const s = statsOf(h);
   state.attackTimer = Math.max(0, state.attackTimer - dt);
@@ -17,6 +19,7 @@ export function update(state, dt) {
   }
   state.invuln = Math.max(0, state.invuln - dt);
   state.attackFlash = Math.max(0, state.attackFlash - dt);
+  regenMana(h, dt, s.maxMana);
 
   const move = readMoveVector(state.keys, state.stick);
   state.pos = applyMove(state.pos, move, s.speed, dt, {
