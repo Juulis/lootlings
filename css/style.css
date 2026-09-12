@@ -89,19 +89,13 @@ canvas {
   image-rendering: pixelated;
   margin: 0 auto 6px;
 }
-.loot-art {
-  width: 48px;
-  height: 48px;
-  image-rendering: pixelated;
-  flex-shrink: 0;
-}
 .slot img {
   width: 28px;
   height: 28px;
   image-rendering: pixelated;
 }
 
-button.primary, .loot-btn {
+button.primary {
   background: var(--btn);
   color: #2a1208;
   border: 3px solid #7a3400;
@@ -110,14 +104,6 @@ button.primary, .loot-btn {
   font-weight: 800;
   cursor: pointer;
   box-shadow: 0 4px 0 #7a3400;
-}
-button.ghost {
-  background: #ffffff22;
-  color: var(--ink);
-  border: 3px solid #fff4;
-  border-radius: 12px;
-  padding: 8px 12px;
-  cursor: pointer;
 }
 
 #hud-right {
@@ -179,12 +165,6 @@ button.ghost {
 }
 .skl { right: 100px; background: #4f7fe8; box-shadow: 0 5px 0 #1e3a8a; }
 
-#loot-list { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
-.loot-row {
-  display: flex; justify-content: space-between; align-items: center; gap: 8px;
-  background: #0004; padding: 8px 10px; border-radius: 10px;
-}
-
 #tilt {
   display: none;
   position: fixed; inset: 0; z-index: 40;
@@ -216,5 +196,18 @@ button.ghost {
   color: var(--muted);
   margin-top: 2px;
 }
-#skill-overlay .classes { margin: 12px 0; }
-#skill-overlay .ghost { margin-top: 4px; }
+#toast {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 5;
+  max-width: 240px;
+  background: #12082ae6;
+  border: 3px solid #ffe566;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: .85rem;
+  font-weight: 700;
+  pointer-events: none;
+  box-shadow: 0 4px 0 #7a4e00;
+}
