@@ -22,9 +22,10 @@ Pixelgrafik i `js/sprites.mjs`: hjältar, slime/fladdermus/svamp, pumpaboss, por
 ## Styrning
 
 - WASD / piltangenter för att gå
-- Klick eller mellanslag för att slå
+- Håll mellanslag, mus eller Slå-knappen för att slå *samtidigt som du går*
+- Auto-attack mot närmaste monster i räckvidd
 - E eller Shift för klasskraft
-- Mobil: styrpinne + knappar
+- Mobil: styrpinne + håll Slå
 
 ## Backend
 

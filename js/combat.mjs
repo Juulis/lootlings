@@ -39,3 +39,49 @@ export function enemyStats(floor, isBoss = false) {
 export function inRange(a, b, range) {
   return dist(a, b) <= range;
 }
+
+export function nearestTarget(from, enemies = []) {
+  let best = null;
+  let bestD = Infinity;
+  for (const en of enemies) {
+    const d = dist(from, en);
+    if (d < bestD) {
+      best = en;
+      bestD = d;
+    }
+  }
+  return best;
+}
+
+export function readMoveVector(keys = {}, stick = { x: 0, y: 0 }) {
+  let mx = 0;
+  let my = 0;
+  if (keys.w || keys.arrowup) my -= 1;
+  if (keys.s || keys.arrowdown) my += 1;
+  if (keys.a || keys.arrowleft) mx -= 1;
+  if (keys.d || keys.arrowright) mx += 1;
+  mx += stick.x || 0;
+  my += stick.y || 0;
+  const mag = Math.hypot(mx, my);
+  if (mag > 1) {
+    mx /= mag;
+    my /= mag;
+  }
+  return { mx, my, moving: mag > 0.01 };
+}
+
+export function isAttackHeld({ keys = {}, pointerDown = false, touchAttack = false } = {}) {
+  return !!(keys[" "] || keys.space || pointerDown || touchAttack);
+}
+
+/** Attack is independent of movement: swing if held or a target is in range. */
+export function shouldSwing({ held = false, targetInRange = false, attackTimer = 0 } = {}) {
+  return attackTimer <= 0 && (held || targetInRange);
+}
+
+export function applyMove(pos, { mx, my }, speed, dt, bounds) {
+  return {
+    x: Math.max(bounds.min, Math.min(bounds.maxX, pos.x + mx * speed * dt)),
+    y: Math.max(bounds.min, Math.min(bounds.maxY, pos.y + my * speed * dt)),
+  };
+}
