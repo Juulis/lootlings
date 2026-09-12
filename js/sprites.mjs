@@ -1,4 +1,5 @@
 /** Pixel-sprites: Diablo-grotta, men runda, stora ögon och lite trams. */
+import { EXTRA_SPRITES } from "./anim-frames.mjs";
 
 export const PALETTE = {
   ".": null,
@@ -373,15 +374,16 @@ export const SPRITES = {
     "................",
   ],
 };
+Object.assign(SPRITES, EXTRA_SPRITES);
 
 export const ACTOR_FRAMES = {
-  knight: ["knight"],
-  mage: ["mage"],
-  archer: ["archer"],
-  slime: ["slime0", "slime1"],
-  bat: ["bat0", "bat1"],
-  shroom: ["shroom"],
-  boss: ["boss"],
+  knight: { idle: ["knight"], walk: ["knight", "knight_w"], attack: ["knight_a"] },
+  mage: { idle: ["mage"], walk: ["mage", "mage_w"], attack: ["mage_a"] },
+  archer: { idle: ["archer"], walk: ["archer", "archer_w"], attack: ["archer_a"] },
+  slime: { idle: ["slime0", "slime1"], walk: ["slime0", "slime1"], attack: ["slime1"] },
+  bat: { idle: ["bat0", "bat1"], walk: ["bat0", "bat1"], attack: ["bat1"] },
+  shroom: { idle: ["shroom", "shroom1"], walk: ["shroom", "shroom1"], attack: ["shroom1"] },
+  boss: { idle: ["boss", "boss1"], walk: ["boss", "boss1"], attack: ["boss1"] },
 };
 
 export const SLOT_SPRITES = {
@@ -409,9 +411,15 @@ export function parseSprite(name) {
   return { name, width, height, rows };
 }
 
-export function frameFor(kind, timeMs = 0) {
-  const frames = ACTOR_FRAMES[kind] || ACTOR_FRAMES.slime;
-  const i = Math.floor(timeMs / 220) % frames.length;
+export function framesFor(kind, pose = "idle") {
+  const set = ACTOR_FRAMES[kind] || ACTOR_FRAMES.slime;
+  if (Array.isArray(set)) return set;
+  return set[pose] || set.idle || set.walk;
+}
+
+export function frameFor(kind, timeMs = 0, pose = "idle") {
+  const frames = framesFor(kind, pose);
+  const i = Math.floor(timeMs / 180) % frames.length;
   return frames[i];
 }
 
