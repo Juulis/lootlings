@@ -5,6 +5,7 @@ import { bakeSprite, SLOT_SPRITES } from "./sprites.mjs";
 import { statsOf } from "./stats.mjs";
 import { log, refreshHud } from "./hud.mjs";
 import { burst } from "./fx.mjs";
+import { SKILLS, SKILL_IDS, unlockSkill, setActiveSkill, skillXpToLevel } from "./skills.mjs";
 
 export function startRun(state, classId) {
   state.hero = createHero(classId);
@@ -16,6 +17,7 @@ export function startRun(state, classId) {
   spawnFloor(state);
   log(`${state.hero.name} går in i grottan!`);
   refreshHud(state);
+  if (state.hero.skillPoints > 0) openSkillPick(state);
 }
 
 export function spawnFloor(state) {
@@ -49,7 +51,8 @@ export function gainXp(state, amount) {
     h.xp -= h.xpToLevel;
     applyLevelUp(h);
     if (h.xp < 0) h.xp = 0;
-    log(`Nivå ${h.level}! Du blev starkare.`);
+    log(`Nivå ${h.level}! +1 skillpoint.`);
+    openSkillPick(state);
   }
   const s = statsOf(h);
   if (h.hp > s.maxHp) h.hp = s.maxHp;
@@ -147,4 +150,52 @@ export function bindAgain(state) {
     document.getElementById("dead-overlay").classList.add("hidden");
     state.mode = "menu";
   };
+}
+
+export function openSkillPick(state) {
+  const el = document.getElementById("skill-overlay");
+  if (!el || !state.hero) return;
+  const h = state.hero;
+  const pts = h.skillPoints || 0;
+  document.getElementById("skill-title").textContent = pts
+    ? `Välj en kraft (${pts} poäng)`
+    : "Dina krafter";
+  const box = document.getElementById("skill-picks");
+  box.innerHTML = "";
+  SKILL_IDS.forEach((id) => {
+    const def = SKILLS[id];
+    const slot = h.skills[id];
+    const btn = document.createElement("button");
+    btn.className = "class-btn";
+    btn.style.borderColor = slot.unlocked ? def.color : "#fff3";
+    const xpNeed = skillXpToLevel(Math.max(1, slot.level || 1));
+    const status = slot.unlocked
+      ? `Nv ${slot.level} · xp ${slot.xp}/${xpNeed}`
+      : "Låst — använd skillpoint";
+    const active = h.activeSkill === id ? " · vald" : "";
+    btn.innerHTML = `<b style="color:${def.color}">${def.name}</b><small>${def.desc}</small><br><small>${status}${active}</small>`;
+    btn.onclick = () => {
+      if (!slot.unlocked) {
+        if ((h.skillPoints || 0) <= 0) return;
+        unlockSkill(h, id);
+        log(`Låste upp ${def.name}!`);
+      } else {
+        setActiveSkill(h, id);
+        log(`Valde ${def.name}`);
+      }
+      refreshHud(state);
+      if (h.skillPoints > 0) openSkillPick(state);
+      else el.classList.add("hidden");
+    };
+    box.appendChild(btn);
+  });
+  document.getElementById("skill-later").textContent = pts ? "Senare" : "Stäng";
+  el.classList.remove("hidden");
+}
+
+export function bindSkills(state) {
+  const later = document.getElementById("skill-later");
+  if (later) {
+    later.onclick = () => document.getElementById("skill-overlay").classList.add("hidden");
+  }
 }
