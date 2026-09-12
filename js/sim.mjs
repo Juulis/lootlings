@@ -11,6 +11,10 @@ export function update(state, dt) {
   const s = statsOf(h);
   state.attackTimer = Math.max(0, state.attackTimer - dt);
   state.skillTimer = Math.max(0, state.skillTimer - dt);
+  state.skillCds = state.skillCds || {};
+  for (const id of Object.keys(state.skillCds)) {
+    state.skillCds[id] = Math.max(0, state.skillCds[id] - dt);
+  }
   state.invuln = Math.max(0, state.invuln - dt);
   state.attackFlash = Math.max(0, state.attackFlash - dt);
 
