@@ -2,6 +2,8 @@
 
 Diablo-liknande skattjakt för barn. Körs i webbläsaren med tangentbord, mus och mobilstyrning.
 
+Pixelgrafik i `js/sprites.mjs`: hjältar, slime/fladdermus/svamp, pumpaboss, portal, loot-ikoner och grottgolv. Mörk dungeon, stora ögon, lite trams.
+
 ## Länkar
 
 - Repo: https://github.com/Juulis/lootlings
