@@ -1,1 +1,30 @@
-SEE_FILE
+/** Pixel-sprites: Diablo-grotta, men runda, stora ögon och lite trams. */
+
+export const PALETTE = {
+  ".": null,
+  "k": "#1a1020",
+  "w": "#fff8e7",
+  "e": "#1a1020",
+  "s": "#f6c7a1",
+  "b": "#4f7fe8",
+  "n": "#2d4fb0",
+  "g": "#ffe08a",
+  "y": "#ffd76a",
+  "p": "#b46af0",
+  "q": "#7b3fc0",
+  "c": "#9ae6ff",
+  "a": "#3dd68c",
+  "d": "#1f8a58",
+  "r": "#ff6b8a",
+  "o": "#ff8a3d",
+  "m": "#f48fb1",
+  "l": "#7dce7a",
+  "t": "#8ab4ff",
+  "u": "#6b4a2b",
+  "h": "#c084fc",
+  "x": "#3a2c68",
+  "z": "#2f5a46",
+  "f": "#1d3b32",
+  "v": "#3d8bfd",
+  "i": "#9aa7b5",
+};
