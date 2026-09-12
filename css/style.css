@@ -72,6 +72,24 @@ canvas { width: 100%; height: 100%; display: block; background: #14201c; }
 }
 .class-btn:hover, .class-btn:focus { border-color: var(--gold); }
 .class-btn b { display: block; font-size: 1.05rem; }
+.class-art {
+  display: block;
+  width: 64px;
+  height: 64px;
+  image-rendering: pixelated;
+  margin: 0 auto 6px;
+}
+.loot-art {
+  width: 48px;
+  height: 48px;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+.slot img {
+  width: 28px;
+  height: 28px;
+  image-rendering: pixelated;
+}
 
 button.primary, .loot-btn {
   background: var(--btn);
@@ -107,13 +125,13 @@ button.ghost {
   display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;
 }
 .slot {
-  width: 54px; height: 54px;
+  width: 58px; height: 62px;
   border-radius: 10px;
   background: #0005;
   border: 2px solid #fff3;
-  font-size: .62rem;
-  display: flex; align-items: center; justify-content: center; text-align: center;
-  padding: 3px;
+  font-size: .58rem;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  padding: 3px; gap: 2px;
 }
 
 #touch {
