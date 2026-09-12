@@ -2,13 +2,15 @@ import { createItem, lootFromKill, compareItems, RARITIES, SLOTS } from "../js/l
 import { CLASSES, createHero, equippedBonus, applyLevelUp, heroPower } from "../js/classes.mjs";
 import { damageAfterArmor, enemyStats, dist, inRange, nearestTarget, readMoveVector, isAttackHeld, shouldSwing, applyMove } from "../js/combat.mjs";
 import {
-  ACTOR_FRAMES,
   PALETTE,
   SLOT_SPRITES,
   frameFor,
   parseSprite,
   spriteKeys,
 } from "../js/sprites.mjs";
+import { POSES, poseFrame } from "../js/pose.mjs";
+import { createState } from "../js/game-state.mjs";
+import { statsOf } from "../js/stats.mjs";
 
 function assert(cond, msg) {
   if (!cond) throw new Error(msg);
@@ -107,12 +109,26 @@ test("hjältar, monster och loot har frames", () => {
   ["knight", "mage", "archer", "slime", "bat", "shroom", "boss"].forEach((kind) => {
     const frame = frameFor(kind, 0);
     parseSprite(frame);
-    assert(ACTOR_FRAMES[kind].includes(frame), kind);
+    ["idle", "walk", "attack"].forEach((pose) => {
+      const pf = poseFrame(kind, 0, pose);
+      parseSprite(pf);
+      assert(POSES[kind][pose].includes(pf), `${kind} ${pose}`);
+    });
   });
   SLOTS.forEach((slot) => parseSprite(SLOT_SPRITES[slot]));
   const slimeA = frameFor("slime", 0);
   const slimeB = frameFor("slime", 230);
   assert(slimeA !== slimeB, "slem ska blinka mellan frames");
+  parseSprite("slash");
+  parseSprite("spark0");
+  assert(poseFrame("knight", 0, "walk") !== poseFrame("knight", 200, "walk"), "riddare går");
+});
+
+test("modulär state har anim-fält", () => {
+  const s = createState();
+  assert(s.attackFlash === 0 && s.facingLeft === false, "anim state");
+  const h = createHero("knight");
+  assert(statsOf(h).damage === h.damage, "statsOf");
 });
 
 test("attack medan man går", () => {
