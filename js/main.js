@@ -19,6 +19,14 @@ function resize() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 window.addEventListener("resize", resize);
+window.addEventListener("orientationchange", () => setTimeout(resize, 120));
+
+async function lockLandscape() {
+  try {
+    const o = screen.orientation;
+    if (o && o.lock) await o.lock("landscape");
+  } catch (_) {}
+}
 
 bindLoot(state);
 bindAgain(state);
@@ -42,4 +50,5 @@ if (window.matchMedia("(pointer: coarse)").matches) {
 }
 window.addEventListener("pointerdown", () => {
   if (window.matchMedia("(pointer: coarse)").matches) touchLayer.classList.remove("hidden");
-}, { once: true });
+  lockLandscape();
+});
