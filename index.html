@@ -24,6 +24,7 @@
         <span>HP <span class="bar hp"><i id="hp-fill" style="width:100%"></i></span></span>
         <span>XP <span class="bar xp"><i id="xp-fill" style="width:0%"></i></span></span>
         <span id="meta">Välj en hjälte</span>
+        <span id="hero-stats"></span>
       </div>
     </header>
     <div id="stage-wrap">
@@ -40,7 +41,7 @@
       <div class="overlay" id="overlay">
         <div class="card">
           <h2>Välj din hjälte</h2>
-          <p>Gå ner i grottan, slå söta monster och samla skatter. Gå och slå samtidigt: WASD/pilar + håll mellanslag eller mus. Mobil: liggande läge, styrpinne + A. B är kraft.</p>
+          <p>Gå ner i grottan. Välj en kraft med skillpoint, sen levlar den när du använder den. WASD + håll attack. E / 1 2 3 är krafter. Mobil: pinne + A/B.</p>
           <div class="classes" id="class-picks"></div>
         </div>
       </div>
@@ -50,6 +51,14 @@
           <div id="loot-body"></div>
           <button class="primary" id="take-loot" type="button">Ta på</button>
           <button class="ghost" id="skip-loot" type="button">Spara i väskan</button>
+        </div>
+      </div>
+      <div class="overlay hidden" id="skill-overlay">
+        <div class="card">
+          <h2 id="skill-title">Välj en kraft</h2>
+          <p>Lås upp med skillpoint vid level-up. Sen blir kraften starkare när du använder den. 1/2/3 eller E.</p>
+          <div class="classes" id="skill-picks"></div>
+          <button class="ghost" id="skill-later" type="button">Senare</button>
         </div>
       </div>
       <div class="overlay hidden" id="dead-overlay">
