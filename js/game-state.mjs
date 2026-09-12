@@ -14,6 +14,7 @@ export function createState() {
     touchAttack: false,
     attackTimer: 0,
     skillTimer: 0,
+    skillCds: { smash: 0, star: 0, volley: 0 },
     invuln: 0,
     attackFlash: 0,
     facingLeft: false,
