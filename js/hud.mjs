@@ -10,15 +10,29 @@ export function log(msg) {
   while (el.children.length > 5) el.lastChild.remove();
 }
 
+function setOrb(fillId, txtId, cur, max) {
+  const fill = document.getElementById(fillId);
+  const txt = document.getElementById(txtId);
+  const pct = Math.max(0, Math.min(100, (cur / Math.max(1, max)) * 100));
+  if (fill) fill.style.height = `${pct}%`;
+  if (txt) txt.textContent = `${Math.max(0, Math.ceil(cur))}/${Math.ceil(max)}`;
+}
+
 export function refreshHud(state) {
   const h = state.hero;
   if (!h) return;
   const s = statsOf(h);
-  document.getElementById("hp-fill").style.width = `${Math.max(0, (h.hp / s.maxHp) * 100)}%`;
-  document.getElementById("xp-fill").style.width = `${Math.max(0, (h.xp / h.xpToLevel) * 100)}%`;
-  document.getElementById("meta").textContent =
-    `${h.name} Nv ${h.level} · Våning ${h.floor} · Guld ${h.gold} · Monster ${h.kills}`;
+  setOrb("hp-fill", "hp-txt", h.hp, s.maxHp);
+  setOrb("mp-fill", "mp-txt", h.mana, s.maxMana);
+  const xp = document.getElementById("xp-fill");
+  const xpTxt = document.getElementById("xp-txt");
+  const xpPct = Math.max(0, (h.xp / h.xpToLevel) * 100);
+  if (xp) xp.style.width = `${xpPct}%`;
+  if (xpTxt) xpTxt.textContent = `XP ${h.xp}/${h.xpToLevel}`;
+  const meta = document.getElementById("meta");
+  if (meta) meta.textContent = `${h.name} Nv ${h.level} · Våning ${h.floor} · Guld ${h.gold}`;
   const gear = document.getElementById("gear");
+  if (!gear) return;
   gear.innerHTML = "";
   ["weapon", "armor", "boots", "charm"].forEach((slot) => {
     const it = h.gear[slot];
@@ -48,7 +62,7 @@ export function renderMenu(onPick) {
 export function setSkillLabel(state) {
   if (!state.hero) return;
   const ready = state.skillTimer <= 0;
-  document.getElementById("skl-btn").textContent = ready
-    ? CLASSES[state.hero.classId].skill.name
-    : state.skillTimer.toFixed(1);
+  const btn = document.getElementById("skl-btn");
+  if (!btn) return;
+  btn.textContent = ready ? CLASSES[state.hero.classId].skill.name : state.skillTimer.toFixed(1);
 }

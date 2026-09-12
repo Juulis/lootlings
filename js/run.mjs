@@ -8,8 +8,11 @@ import { burst } from "./fx.mjs";
 
 export function startRun(state, classId) {
   state.hero = createHero(classId);
-  state.hero.maxHp = statsOf(state.hero).maxHp;
-  state.hero.hp = state.hero.maxHp;
+  const st = statsOf(state.hero);
+  state.hero.maxHp = st.maxHp;
+  state.hero.hp = st.maxHp;
+  state.hero.mana = st.maxMana;
+  state.invOpen = false;
   state.mode = "play";
   document.getElementById("overlay").classList.add("hidden");
   document.getElementById("dead-overlay").classList.add("hidden");
