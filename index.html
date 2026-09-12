@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Lootlings — skattjakt för barn</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Lootlings</h1>
+      <div class="stats">
+        <span>HP <span class="bar hp"><i id="hp-fill" style="width:100%"></i></span></span>
+        <span>XP <span class="bar xp"><i id="xp-fill" style="width:0%"></i></span></span>
+        <span id="meta">Välj en hjälte</span>
+      </div>
+    </header>
+    <div id="stage-wrap">
+      <canvas id="game"></canvas>
+      <div id="hud-right">
+        <div id="gear"></div>
+        <div id="log"></div>
+      </div>
+      <div id="touch" class="hidden">
+        <div class="stick" id="stick"><div class="stick-knob" id="knob"></div></div>
+        <button class="atk" id="atk-btn" type="button">Slå</button>
+        <button class="skl" id="skl-btn" type="button">Kraft</button>
+      </div>
+      <div class="overlay" id="overlay">
+        <div class="card">
+          <h2>Välj din hjälte</h2>
+          <p>Gå ner i grottan, slå söta monster och samla skatter. WASD/piltangenter + musklick, eller styrpinne på mobil. Mellanslag slår, E använder kraft.</p>
+          <div class="classes" id="class-picks"></div>
+        </div>
+      </div>
+      <div class="overlay hidden" id="loot-overlay">
+        <div class="card">
+          <h2>Ny skatt!</h2>
+          <div id="loot-body"></div>
+          <button class="primary" id="take-loot" type="button">Ta på</button>
+          <button class="ghost" id="skip-loot" type="button">Spara i väskan</button>
+        </div>
+      </div>
+      <div class="overlay hidden" id="dead-overlay">
+        <div class="card">
+          <h2>Aj då!</h2>
+          <p id="dead-text"></p>
+          <button class="primary" id="again" type="button">Ny runda</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
