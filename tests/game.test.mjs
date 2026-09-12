@@ -1,6 +1,6 @@
 import { createItem, lootFromKill, compareItems, RARITIES, SLOTS } from "../js/loot.mjs";
 import { CLASSES, createHero, equippedBonus, applyLevelUp, heroPower } from "../js/classes.mjs";
-import { damageAfterArmor, enemyStats, dist, inRange } from "../js/combat.mjs";
+import { damageAfterArmor, enemyStats, dist, inRange, nearestTarget, readMoveVector, isAttackHeld, shouldSwing, applyMove } from "../js/combat.mjs";
 import {
   ACTOR_FRAMES,
   PALETTE,
@@ -113,6 +113,27 @@ test("hjältar, monster och loot har frames", () => {
   const slimeA = frameFor("slime", 0);
   const slimeB = frameFor("slime", 230);
   assert(slimeA !== slimeB, "slem ska blinka mellan frames");
+});
+
+test("attack medan man går", () => {
+  const enemies = [{ x: 10, y: 0 }, { x: 80, y: 0 }];
+  const near = nearestTarget({ x: 0, y: 0 }, enemies);
+  assert(near.x === 10, "närmaste fiende");
+  assert(shouldSwing({ held: true, targetInRange: false, attackTimer: 0 }), "håll slår");
+  assert(shouldSwing({ held: false, targetInRange: true, attackTimer: 0 }), "auto i range");
+  assert(!shouldSwing({ held: true, targetInRange: true, attackTimer: 0.2 }), "cooldown stoppar");
+  assert(!shouldSwing({ held: false, targetInRange: false, attackTimer: 0 }), "ingen input");
+  assert(isAttackHeld({ keys: { " ": true } }), "mellanslag hålls");
+  assert(isAttackHeld({ pointerDown: true }), "mus hålls");
+  assert(isAttackHeld({ touchAttack: true }), "touch hålls");
+  const walk = readMoveVector({ w: true, d: true }, { x: 0, y: 0 });
+  assert(walk.moving, "går");
+  assert(Math.abs(Math.hypot(walk.mx, walk.my) - 1) < 1e-9, "diagonal normaliserad");
+  const start = { x: 200, y: 200 };
+  const next = applyMove(start, walk, 100, 0.1, { min: 40, maxX: 860, maxY: 600 });
+  assert(next.x > start.x && next.y < start.y, "rörelse medan man kan slå");
+  const still = applyMove(start, { mx: 0, my: 0 }, 100, 0.1, { min: 40, maxX: 860, maxY: 600 });
+  assert(still.x === start.x && still.y === start.y, "står still utan input");
 });
 
 console.log(`\n${passed} tester godkända`);
