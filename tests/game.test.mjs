@@ -1,6 +1,14 @@
 import { createItem, lootFromKill, compareItems, RARITIES, SLOTS } from "../js/loot.mjs";
 import { CLASSES, createHero, equippedBonus, applyLevelUp, heroPower } from "../js/classes.mjs";
 import { damageAfterArmor, enemyStats, dist, inRange } from "../js/combat.mjs";
+import {
+  ACTOR_FRAMES,
+  PALETTE,
+  SLOT_SPRITES,
+  frameFor,
+  parseSprite,
+  spriteKeys,
+} from "../js/sprites.mjs";
 
 function assert(cond, msg) {
   if (!cond) throw new Error(msg);
@@ -83,6 +91,28 @@ test("combat math", () => {
   assert(dist({ x: 0, y: 0 }, { x: 3, y: 4 }) === 5, "hypot");
   assert(inRange({ x: 0, y: 0 }, { x: 10, y: 0 }, 10), "i range");
   assert(!inRange({ x: 0, y: 0 }, { x: 11, y: 0 }, 10), "utanför");
+});
+
+test("alla sprites är 16x16 med giltig palett", () => {
+  const keys = spriteKeys();
+  assert(keys.length >= 16, "förväntade en hel atlas");
+  for (const name of keys) {
+    const s = parseSprite(name);
+    assert(s.width === 16 && s.height === 16, `${name} ska vara 16x16`);
+  }
+  assert("k" in PALETTE && PALETTE["."] === null, "kontur + genomskinligt");
+});
+
+test("hjältar, monster och loot har frames", () => {
+  ["knight", "mage", "archer", "slime", "bat", "shroom", "boss"].forEach((kind) => {
+    const frame = frameFor(kind, 0);
+    parseSprite(frame);
+    assert(ACTOR_FRAMES[kind].includes(frame), kind);
+  });
+  SLOTS.forEach((slot) => parseSprite(SLOT_SPRITES[slot]));
+  const slimeA = frameFor("slime", 0);
+  const slimeB = frameFor("slime", 230);
+  assert(slimeA !== slimeB, "slem ska blinka mellan frames");
 });
 
 console.log(`\n${passed} tester godkända`);
