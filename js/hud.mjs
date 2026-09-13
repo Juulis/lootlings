@@ -2,6 +2,7 @@ import { CLASSES } from "./classes.mjs";
 import { bakeSprite, SLOT_SPRITES } from "./sprites.mjs";
 import { statsOf } from "./stats.mjs";
 import { SKILLS } from "./skills.mjs";
+import { versionLabel } from "./version.mjs";
 
 export function log(msg) {
   const el = document.getElementById("log");
@@ -26,6 +27,13 @@ export function toast(msg) {
 function n(v, fallback = 0) {
   const x = Number(v);
   return Number.isFinite(x) ? x : fallback;
+}
+
+export function showVersion() {
+  if (typeof document === "undefined") return versionLabel();
+  const el = document.getElementById("build-ver");
+  if (el) el.textContent = versionLabel();
+  return versionLabel();
 }
 
 export function refreshHud(state) {
@@ -77,6 +85,7 @@ export function refreshHud(state) {
 
 export function renderMenu(onPick) {
   if (typeof document === "undefined") return;
+  showVersion();
   const box = document.getElementById("class-picks");
   if (!box) return;
   box.innerHTML = "";
