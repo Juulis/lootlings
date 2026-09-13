@@ -7,11 +7,14 @@ import { update } from "./sim.mjs";
 import { draw } from "./view.mjs";
 import { bindInventory } from "./inventory.mjs";
 import { bindAudio } from "./audio.mjs";
+import { guardBrowserChrome } from "./touch-guard.mjs";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 const touchLayer = document.getElementById("touch");
 const state = createState();
+
+guardBrowserChrome();
 
 function resize() {
   const wrap = document.getElementById("stage-wrap");
