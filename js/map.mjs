@@ -1,3 +1,5 @@
+import { drawDecor, DECOR_SCALE } from "./decor-sprites.mjs";
+
 const TILE = 64;
 const COLS = 140;
 const ROWS = 100;
@@ -14,25 +16,121 @@ function inBounds(tx, ty) {
   return tx >= 1 && ty >= 1 && tx < COLS - 1 && ty < ROWS - 1;
 }
 
-function carve(walk, tx, ty, radius = 1) {
+function carve(walk, ground, tx, ty, radius = 1, g = 1) {
   for (let dy = -radius; dy <= radius; dy++) {
     for (let dx = -radius; dx <= radius; dx++) {
       const x = tx + dx;
       const y = ty + dy;
-      if (inBounds(x, y)) walk[y][x] = 1;
+      if (inBounds(x, y)) {
+        walk[y][x] = 1;
+        ground[y][x] = g;
+      }
     }
   }
+}
+
+function block(walk, tx, ty) {
+  if (inBounds(tx, ty)) walk[ty][tx] = 0;
+}
+
+function pix(tx, ty) {
+  return { x: tx * TILE + TILE / 2, y: ty * TILE + TILE / 2 };
+}
+
+function scatterProps(walk, ground, path, rng) {
+  const props = [];
+  const used = new Set();
+  const take = (tx, ty) => {
+    const key = `${tx},${ty}`;
+    if (used.has(key) || !inBounds(tx, ty)) return false;
+    used.add(key);
+    return true;
+  };
+
+  const start = path[0];
+  if (start) {
+    if (take(start.x, start.y + 2)) props.push({ kind: "sign", ...pix(start.x, start.y + 2), solid: false });
+    if (take(start.x, start.y - 2)) props.push({ kind: "lantern", ...pix(start.x, start.y - 2), solid: false });
+  }
+
+  for (let i = 18; i < path.length - 12; i += 22) {
+    const p = path[i];
+    const side = rng() < 0.5 ? -3 : 3;
+    const hx = p.x + (rng() < 0.5 ? side : 0);
+    const hy = p.y + (rng() < 0.5 ? 0 : side);
+    if (!inBounds(hx, hy)) continue;
+    carve(walk, ground, hx, hy, 2, 2);
+    if (take(hx, hy)) {
+      props.push({ kind: "cottage", ...pix(hx, hy), solid: true });
+      block(walk, hx, hy);
+    }
+    if (take(hx + 1, hy + 1)) props.push({ kind: "flower", ...pix(hx + 1, hy + 1), solid: false });
+    if (take(hx - 1, hy + 1)) props.push({ kind: rng() < 0.5 ? "bush" : "crate", ...pix(hx - 1, hy + 1), solid: rng() < 0.4 });
+    if (take(hx + 2, hy)) props.push({ kind: "lantern", ...pix(hx + 2, hy), solid: false });
+  }
+
+  for (let i = 10; i < path.length; i += 14) {
+    const p = path[i];
+    const wx = p.x + (rng() < 0.5 ? -2 : 2);
+    const wy = p.y + (rng() < 0.5 ? -2 : 2);
+    if (take(wx, wy) && inBounds(wx, wy)) {
+      const kind = rng() < 0.35 ? "well" : rng() < 0.5 ? "chest" : "crate";
+      if (kind === "well") {
+        carve(walk, ground, wx, wy, 1, 1);
+        block(walk, wx, wy);
+      }
+      props.push({ kind, ...pix(wx, wy), solid: kind === "well" || kind === "crate" });
+    }
+  }
+
+  for (let i = 4; i < path.length; i += 5) {
+    const p = path[i];
+    for (let n = 0; n < 3; n++) {
+      const tx = p.x + Math.floor((rng() - 0.5) * 7);
+      const ty = p.y + Math.floor((rng() - 0.5) * 7);
+      if (!take(tx, ty) || !inBounds(tx, ty)) continue;
+      const onPath = walk[ty][tx] === 1;
+      const roll = rng();
+      let kind = "rock";
+      if (roll < 0.28) kind = "tree";
+      else if (roll < 0.5) kind = "bush";
+      else if (roll < 0.62) kind = "flower";
+      else if (roll < 0.72) kind = "column";
+      else if (roll < 0.8) kind = "lantern";
+      const solid = kind === "tree" || kind === "rock" || kind === "column";
+      if (solid && onPath) continue;
+      if (solid) block(walk, tx, ty);
+      if (!onPath && (kind === "flower" || kind === "lantern")) continue;
+      props.push({ kind, ...pix(tx, ty), solid });
+    }
+  }
+
+  const goal = path[path.length - 1];
+  if (goal && take(goal.x, goal.y - 2)) {
+    props.push({ kind: "lantern", ...pix(goal.x, goal.y - 2), solid: false });
+    if (take(goal.x - 2, goal.y)) {
+      props.push({ kind: "column", ...pix(goal.x - 2, goal.y), solid: true });
+      block(walk, goal.x - 2, goal.y);
+    }
+    if (take(goal.x + 2, goal.y)) {
+      props.push({ kind: "column", ...pix(goal.x + 2, goal.y), solid: true });
+      block(walk, goal.x + 2, goal.y);
+    }
+  }
+
+  return props;
 }
 
 export function generateFloor(floor = 1) {
   const rng = mulberry(floor * 9973 + 13);
   const walk = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+  const ground = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
   const path = [];
   let x = 3;
   let y = Math.floor(ROWS / 2);
   const goalX = COLS - 4;
   const goalY = 8 + Math.floor(rng() * (ROWS - 16));
-  carve(walk, x, y, 2);
+  carve(walk, ground, x, y, 2, 3);
   path.push({ x, y });
 
   let guard = 0;
@@ -47,17 +145,18 @@ export function generateFloor(floor = 1) {
     else y += rng() < 0.5 ? -1 : 1;
     x = Math.max(2, Math.min(COLS - 3, x));
     y = Math.max(2, Math.min(ROWS - 3, y));
-    carve(walk, x, y, rng() < 0.12 ? 2 : 1);
+    carve(walk, ground, x, y, rng() < 0.12 ? 2 : 1, 3);
     if (path.length === 0 || path[path.length - 1].x !== x || path[path.length - 1].y !== y) {
       path.push({ x, y });
     }
     if (rng() < 0.04) {
       const rx = x + Math.floor((rng() - 0.5) * 8);
       const ry = y + Math.floor((rng() - 0.5) * 8);
-      carve(walk, rx, ry, 3);
+      carve(walk, ground, rx, ry, 3, rng() < 0.6 ? 2 : 1);
     }
   }
-  carve(walk, goalX, goalY, 2);
+  carve(walk, ground, goalX, goalY, 2, 3);
+  const props = scatterProps(walk, ground, path, rng);
 
   return {
     w: COLS * TILE,
@@ -66,6 +165,8 @@ export function generateFloor(floor = 1) {
     cols: COLS,
     rows: ROWS,
     walk,
+    ground,
+    props,
     path,
     start: { x: 3 * TILE + TILE / 2, y: Math.floor(ROWS / 2) * TILE + TILE / 2 },
     goal: { x: goalX * TILE + TILE / 2, y: goalY * TILE + TILE / 2 },
@@ -113,6 +214,12 @@ export function pathSpots(map, count, minDistFromStart = 400) {
   return spots;
 }
 
+const GROUND_COL = {
+  1: ["#3a2a48", "#4a3860"],
+  2: ["#2a4a28", "#3d6a32"],
+  3: ["#6b4a24", "#8a6230"],
+};
+
 export function drawMap(ctx, map, camX, camY, viewW, viewH, timeMs) {
   const t = map.tile || TILE;
   const x0 = Math.max(0, Math.floor(camX / t) - 1);
@@ -134,16 +241,16 @@ export function drawMap(ctx, map, camX, camY, viewW, viewH, timeMs) {
         }
         continue;
       }
-      ctx.fillStyle = (tx + ty) % 2 === 0 ? "#3a2a48" : "#322440";
+      const g = map.ground?.[ty]?.[tx] || 1;
+      const pair = GROUND_COL[g] || GROUND_COL[1];
+      ctx.fillStyle = (tx + ty) % 2 === 0 ? pair[0] : pair[1];
       ctx.fillRect(px, py, t, t);
-      ctx.fillStyle = "#4a3860";
-      ctx.fillRect(px + 6, py + 6, t - 12, t - 12);
     }
   }
 
   if (map.path?.length > 1) {
-    ctx.strokeStyle = `rgba(255, 215, 106, ${0.35 + Math.sin(timeMs / 280) * 0.12})`;
-    ctx.lineWidth = 10;
+    ctx.strokeStyle = `rgba(255, 215, 106, ${0.28 + Math.sin(timeMs / 280) * 0.1})`;
+    ctx.lineWidth = 8;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.beginPath();
@@ -161,5 +268,19 @@ export function drawMap(ctx, map, camX, camY, viewW, viewH, timeMs) {
       } else ctx.lineTo(px, py);
     }
     ctx.stroke();
+  }
+
+  const pad = 90;
+  for (const p of map.props || []) {
+    if (p.x < camX - pad || p.y < camY - pad || p.x > camX + viewW + pad || p.y > camY + viewH + pad) continue;
+    const scale = DECOR_SCALE[p.kind] || 3;
+    if (p.kind === "lantern") {
+      const glow = 0.18 + Math.sin(timeMs / 220 + p.x) * 0.06;
+      ctx.fillStyle = `rgba(255, 215, 106, ${glow})`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 28, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    drawDecor(ctx, p.kind, p.x, p.y, scale);
   }
 }
