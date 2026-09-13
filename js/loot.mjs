@@ -1,3 +1,5 @@
+import { lookFor } from "./gear-looks.mjs";
+
 export const RARITIES = [
   { id: "common", name: "Vanlig", color: "#9aa7b5", weight: 54, statMul: 1 },
   { id: "magic", name: "Magisk", color: "#3d8bfd", weight: 28, statMul: 1.25 },
@@ -45,7 +47,7 @@ export function createItem({ slot, classId = "knight", level = 1, rng = Math.ran
   const power = Math.max(1, Math.round(base * rarity.statMul * roll));
   const namePool =
     slot === "weapon" ? NAMES.weapon[classId] || NAMES.weapon.knight : NAMES[slot];
-  return {
+  const item = {
     id: `${slot}-${Date.now()}-${Math.floor(rng() * 1e6)}`,
     slot,
     name: pick(namePool, rng),
@@ -54,7 +56,10 @@ export function createItem({ slot, classId = "knight", level = 1, rng = Math.ran
     color: rarity.color,
     power,
     level,
+    classId,
   };
+  item.look = lookFor(item, classId);
+  return item;
 }
 
 export function compareItems(a, b) {
