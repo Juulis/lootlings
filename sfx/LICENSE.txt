@@ -1,0 +1,13 @@
+Ljudeffekter i Lootlings:
+
+Inbyggda SFX är syntade i Web Audio (egen kod).
+
+Gratis CC0-pack som passar om vi byter till samples senare:
+Kenney.nl — RPG Audio (CC0)
+https://opengameart.org/content/50-rpg-sound-effects
+https://kenney.nl/assets/rpg-audio
+
+artisticdude — RPG Sound Pack (CC0)
+https://opengameart.org/content/rpg-sound-pack
+
+Kredit är inte obligatoriskt. Tack Kenney och artisticdude.
