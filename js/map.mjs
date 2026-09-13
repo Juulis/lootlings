@@ -65,7 +65,7 @@ function scatterProps(walk, ground, path, rng) {
       block(walk, hx, hy);
     }
     if (take(hx + 1, hy + 1)) props.push({ kind: "flower", ...pix(hx + 1, hy + 1), solid: false });
-    if (take(hx - 1, hy + 1)) props.push({ kind: rng() < 0.5 ? "bush" : "crate", ...pix(hx - 1, hy + 1), solid: rng() < 0.4 });
+    if (take(hx - 1, hy + 1)) props.push({ kind: rng() < 0.5 ? "bush2" : "crate", ...pix(hx - 1, hy + 1), solid: rng() < 0.4 });
     if (take(hx + 2, hy)) props.push({ kind: "lantern", ...pix(hx + 2, hy), solid: false });
   }
 
@@ -83,24 +83,24 @@ function scatterProps(walk, ground, path, rng) {
     }
   }
 
-  for (let i = 4; i < path.length; i += 5) {
+  const plants = ["bush", "bush2", "fern", "tallgrass", "flower", "tree"];
+  for (let i = 2; i < path.length; i += 3) {
     const p = path[i];
-    for (let n = 0; n < 3; n++) {
-      const tx = p.x + Math.floor((rng() - 0.5) * 7);
-      const ty = p.y + Math.floor((rng() - 0.5) * 7);
+    for (let n = 0; n < 5; n++) {
+      const tx = p.x + Math.floor((rng() - 0.5) * 8);
+      const ty = p.y + Math.floor((rng() - 0.5) * 8);
       if (!take(tx, ty) || !inBounds(tx, ty)) continue;
       const onPath = walk[ty][tx] === 1;
       const roll = rng();
-      let kind = "rock";
-      if (roll < 0.28) kind = "tree";
-      else if (roll < 0.5) kind = "bush";
-      else if (roll < 0.62) kind = "flower";
-      else if (roll < 0.72) kind = "column";
-      else if (roll < 0.8) kind = "lantern";
+      let kind;
+      if (roll < 0.22) kind = plants[Math.floor(rng() * plants.length)];
+      else if (roll < 0.34) kind = "rock";
+      else if (roll < 0.4) kind = "column";
+      else if (roll < 0.46) kind = "lantern";
+      else kind = onPath ? (rng() < 0.5 ? "tallgrass" : "flower") : plants[Math.floor(rng() * 4)];
       const solid = kind === "tree" || kind === "rock" || kind === "column";
       if (solid && onPath) continue;
       if (solid) block(walk, tx, ty);
-      if (!onPath && (kind === "flower" || kind === "lantern")) continue;
       props.push({ kind, ...pix(tx, ty), solid });
     }
   }
@@ -214,11 +214,83 @@ export function pathSpots(map, count, minDistFromStart = 400) {
   return spots;
 }
 
-const GROUND_COL = {
-  1: ["#3a2a48", "#4a3860"],
-  2: ["#2a4a28", "#3d6a32"],
-  3: ["#6b4a24", "#8a6230"],
-};
+function h32(x, y) {
+  return ((x * 73856093) ^ (y * 19349663) ^ (x * y * 83492791)) >>> 0;
+}
+
+function drawWallTile(ctx, px, py, t, tx, ty, map) {
+  const brick = (tx + ty) % 2 === 0;
+  ctx.fillStyle = brick ? "#1c102c" : "#150c24";
+  ctx.fillRect(px, py, t, t);
+  ctx.fillStyle = "#2a1844";
+  const row = 10;
+  for (let yy = 4; yy < t - 4; yy += row) {
+    const shift = ((yy / row) | 0) % 2 === 0 ? 0 : 12;
+    for (let xx = shift; xx < t; xx += 24) {
+      ctx.fillRect(px + xx + 1, py + yy, 20, 7);
+    }
+  }
+  const nearPath =
+    map.walk?.[ty]?.[tx - 1] || map.walk?.[ty]?.[tx + 1] ||
+    map.walk?.[ty - 1]?.[tx] || map.walk?.[ty + 1]?.[tx];
+  if (nearPath) {
+    ctx.fillStyle = "#2d5a32";
+    const n = 4 + (h32(tx, ty) % 5);
+    for (let i = 0; i < n; i++) {
+      const hx = h32(tx + i, ty + 3);
+      ctx.fillRect(px + (hx % (t - 8)), py + ((hx >> 8) % (t - 8)), 3 + (hx % 4), 2);
+    }
+  }
+}
+
+function drawFloorTile(ctx, px, py, t, tx, ty, g) {
+  const rnd = h32(tx, ty);
+  if (g === 2) {
+    ctx.fillStyle = (tx + ty) % 2 === 0 ? "#2b5a2c" : "#337034";
+    ctx.fillRect(px, py, t, t);
+    ctx.fillStyle = "#3f8a3c";
+    ctx.fillRect(px + 2, py + 2, t - 4, t - 4);
+    ctx.fillStyle = "#4c9a45";
+    for (let i = 0; i < 10; i++) {
+      const v = h32(tx * 9 + i, ty * 7);
+      ctx.fillRect(px + (v % (t - 4)), py + ((v >> 6) % (t - 6)), 2, 5);
+    }
+    if (rnd % 7 === 0) {
+      ctx.fillStyle = rnd % 2 ? "#ff8ab8" : "#ffe566";
+      ctx.fillRect(px + (rnd % (t - 6)) + 2, py + ((rnd >> 4) % (t - 6)) + 2, 3, 3);
+    }
+    return;
+  }
+  if (g === 3) {
+    ctx.fillStyle = "#5a3a18";
+    ctx.fillRect(px, py, t, t);
+    ctx.fillStyle = "#7a5224";
+    ctx.beginPath();
+    ctx.ellipse(px + t / 2, py + t / 2, t * 0.42, t * 0.34, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#c9a066";
+    ctx.beginPath();
+    ctx.ellipse(px + t / 2, py + t / 2, t * 0.28, t * 0.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#8a6230";
+    for (let i = 0; i < 6; i++) {
+      const v = h32(tx + i * 3, ty + 11);
+      ctx.fillRect(px + 8 + (v % (t - 16)), py + 10 + ((v >> 5) % (t - 20)), 3, 2);
+    }
+    return;
+  }
+  ctx.fillStyle = (tx + ty) % 2 === 0 ? "#3a2c50" : "#322448";
+  ctx.fillRect(px, py, t, t);
+  ctx.fillStyle = "#4a3860";
+  ctx.fillRect(px + 3, py + 3, t - 6, t - 6);
+  ctx.fillStyle = "#2a1c3c";
+  ctx.fillRect(px + 8, py + t / 2, t - 16, 2);
+  ctx.fillRect(px + t / 2, py + 8, 2, t - 16);
+  if (rnd % 5 === 0) {
+    ctx.fillStyle = "#3d6a32";
+    ctx.fillRect(px + 6, py + t - 10, 8, 4);
+  }
+}
 
 export function drawMap(ctx, map, camX, camY, viewW, viewH, timeMs) {
   const t = map.tile || TILE;
@@ -227,30 +299,22 @@ export function drawMap(ctx, map, camX, camY, viewW, viewH, timeMs) {
   const x1 = Math.min(map.cols || Math.ceil(map.w / t), Math.ceil((camX + viewW) / t) + 1);
   const y1 = Math.min(map.rows || Math.ceil(map.h / t), Math.ceil((camY + viewH) / t) + 1);
 
+  ctx.fillStyle = "#0c0614";
+  ctx.fillRect(camX, camY, viewW, viewH);
+
   for (let ty = y0; ty < y1; ty++) {
     for (let tx = x0; tx < x1; tx++) {
       const px = tx * t;
       const py = ty * t;
       const open = map.walk ? map.walk[ty]?.[tx] === 1 : true;
-      if (!open) {
-        ctx.fillStyle = (tx + ty) % 2 === 0 ? "#1a0c28" : "#140820";
-        ctx.fillRect(px, py, t, t);
-        if ((tx * 13 + ty * 7) % 11 === 0) {
-          ctx.fillStyle = "#2a1840";
-          ctx.fillRect(px + 18, py + 10, 12, t - 16);
-        }
-        continue;
-      }
-      const g = map.ground?.[ty]?.[tx] || 1;
-      const pair = GROUND_COL[g] || GROUND_COL[1];
-      ctx.fillStyle = (tx + ty) % 2 === 0 ? pair[0] : pair[1];
-      ctx.fillRect(px, py, t, t);
+      if (!open) drawWallTile(ctx, px, py, t, tx, ty, map);
+      else drawFloorTile(ctx, px, py, t, tx, ty, map.ground?.[ty]?.[tx] || 1);
     }
   }
 
   if (map.path?.length > 1) {
-    ctx.strokeStyle = `rgba(255, 215, 106, ${0.28 + Math.sin(timeMs / 280) * 0.1})`;
-    ctx.lineWidth = 8;
+    ctx.strokeStyle = `rgba(255, 220, 130, ${0.22 + Math.sin(timeMs / 320) * 0.08})`;
+    ctx.lineWidth = 6;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.beginPath();
@@ -270,17 +334,27 @@ export function drawMap(ctx, map, camX, camY, viewW, viewH, timeMs) {
     ctx.stroke();
   }
 
-  const pad = 90;
+  const pad = 100;
   for (const p of map.props || []) {
     if (p.x < camX - pad || p.y < camY - pad || p.x > camX + viewW + pad || p.y > camY + viewH + pad) continue;
     const scale = DECOR_SCALE[p.kind] || 3;
     if (p.kind === "lantern") {
-      const glow = 0.18 + Math.sin(timeMs / 220 + p.x) * 0.06;
+      const glow = 0.2 + Math.sin(timeMs / 220 + p.x) * 0.07;
       ctx.fillStyle = `rgba(255, 215, 106, ${glow})`;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, 28, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, 30, 0, Math.PI * 2);
       ctx.fill();
     }
-    drawDecor(ctx, p.kind, p.x, p.y, scale);
+    drawDecor(ctx, p.kind, p.x, p.y, scale, timeMs);
+  }
+
+  for (let i = 0; i < 14; i++) {
+    const seed = h32((camX / 40) | 0, i + ((camY / 40) | 0));
+    const fx = camX + (seed % viewW);
+    const fy = camY + ((seed >> 8) % viewH);
+    const tw = 0.35 + Math.sin(timeMs / 260 + i) * 0.35;
+    if (tw < 0.15) continue;
+    ctx.fillStyle = `rgba(255, 240, 160, ${tw})`;
+    ctx.fillRect(fx, fy + Math.sin(timeMs / 400 + i) * 8, 2, 2);
   }
 }
