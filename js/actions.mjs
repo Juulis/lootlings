@@ -5,6 +5,7 @@ import { log } from "./hud.mjs";
 import { burst } from "./fx.mjs";
 import { killEnemy } from "./run.mjs";
 import { SKILLS, skillStats, gainSkillXp, setActiveSkill, unlockSkill } from "./skills.mjs";
+import { playSfx } from "./audio.mjs";
 
 export function nearestEnemy(state) {
   return nearestTarget(state.pos, state.enemies);
@@ -13,6 +14,11 @@ export function nearestEnemy(state) {
 export function hitEnemy(state, en, dmg) {
   en.hp -= dmg;
   burst(state, en.x, en.y, "#fff");
+  const now = performance.now?.() || Date.now();
+  if (!state._lastHitSfx || now - state._lastHitSfx > 90) {
+    playSfx("hit", { volume: 0.35 });
+    state._lastHitSfx = now;
+  }
   if (en.hp <= 0) {
     state.enemies = state.enemies.filter((e) => e !== en);
     killEnemy(state, en);
@@ -41,11 +47,13 @@ export function fireAttack(state) {
     ? { x: target.x, y: target.y }
     : { x: state.pos.x + (state.pointer.x - canvas.clientWidth / 2), y: state.pos.y };
   if (h.classId === "knight") {
+    playSfx("slash");
     state.enemies.forEach((en) => {
       if (dist(state.pos, en) <= s.range) hitEnemy(state, en, s.damage);
     });
     burst(state, state.pos.x, state.pos.y, CLASSES.knight.accent);
   } else {
+    playSfx(h.classId === "mage" ? "magic" : "swing");
     spawnShot(state, aim, s.damage, h.classId === "mage" ? 18 : 10, h.classId === "mage");
   }
 }
@@ -77,6 +85,7 @@ export function useSkill(state, skillId) {
     return;
   }
   h.mana -= cost;
+  playSfx("magic", { volume: 0.7 });
   state.skillCds = state.skillCds || {};
   state.skillCds[id] = st.cd;
   state.skillTimer = st.cd;
