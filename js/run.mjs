@@ -4,6 +4,7 @@ import { enemyStats } from "./combat.mjs";
 import { statsOf } from "./stats.mjs";
 import { log, toast, refreshHud } from "./hud.mjs";
 import { burst } from "./fx.mjs";
+import { playSfx } from "./audio.mjs";
 
 export function startRun(state, classId) {
   state.hero = createHero(classId);
@@ -53,6 +54,7 @@ export function gainXp(state, amount) {
     applyLevelUp(h);
     if (h.xp < 0) h.xp = 0;
     toast(`Nivå ${h.level}! +1 skillpoint. 1/2/3 låser upp.`);
+    playSfx("level");
   }
   const s = statsOf(h);
   if (h.hp > s.maxHp) h.hp = s.maxHp;
@@ -67,11 +69,13 @@ export function killEnemy(state, en) {
   h.gold += loot.gold;
   gainXp(state, en.isBoss ? 28 + h.floor * 8 : 8 + h.floor * 2);
   loot.drops.forEach((d) => state.pickups.push({ ...d, x: en.x, y: en.y, vy: -40 }));
+  playSfx("kill");
   if (loot.drops.length) {
     loot.drops.forEach((item) => {
       const how = applyDrop(h, item);
       toast(how === "equip" ? `På: ${item.name}` : `Väska: ${item.name}`);
     });
+    playSfx("loot");
   } else toast(`+${loot.gold} guld`);
   burst(state, en.x, en.y, en.isBoss ? "#ffd76a" : "#9ae6ff");
   if (state.enemies.length === 0) {
@@ -97,6 +101,7 @@ export function applyDrop(hero, item) {
 export function bindLoot() {}
 
 export function nextFloor(state) {
+  playSfx("portal");
   state.hero.floor += 1;
   state.hero.hp = Math.min(statsOf(state.hero).maxHp, state.hero.hp + 18);
   spawnFloor(state);
@@ -104,6 +109,7 @@ export function nextFloor(state) {
 }
 
 export function die(state) {
+  playSfx("die");
   state.mode = "dead";
   document.getElementById("dead-text").textContent =
     `${state.hero.name} nådde våning ${state.hero.floor} och besegrade ${state.hero.kills} monster.`;
