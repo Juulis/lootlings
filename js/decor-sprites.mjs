@@ -1,4 +1,5 @@
 /** Barnvänliga 16x16-föremål: hus, träd, sten, brunn, lykta. */
+import { PALETTE, paintPixels, drawSprite } from "./sprites.mjs";
 
 export const DECOR_SPRITES = {
   cottage: [
@@ -178,3 +179,34 @@ export const DECOR_SCALE = {
   column: 3,
   flower: 2,
 };
+
+export function validateDecor() {
+  for (const [name, rows] of Object.entries(DECOR_SPRITES)) {
+    const w = rows[0].length;
+    if (rows.length !== 16 || w !== 16) throw new Error(`${name} inte 16x16`);
+    for (const row of rows) {
+      if (row.length !== w) throw new Error(`ojämn rad i ${name}`);
+      for (const ch of row) {
+        if (!(ch in PALETTE)) throw new Error(`färg ${ch} i ${name}`);
+      }
+    }
+  }
+  return Object.keys(DECOR_SPRITES);
+}
+
+export function drawDecor(ctx, kind, cx, cy, scale = 3) {
+  const rows = DECOR_SPRITES[kind];
+  if (!rows) {
+    drawSprite(ctx, kind, cx, cy, { scale, shadow: true });
+    return;
+  }
+  const w = 16 * scale;
+  const h = 16 * scale;
+  const x = Math.round(cx - w / 2);
+  const y = Math.round(cy - h / 2);
+  ctx.fillStyle = "rgba(0,0,0,0.25)";
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + h * 0.36, w * 0.3, h * 0.1, 0, 0, Math.PI * 2);
+  ctx.fill();
+  paintPixels(ctx, rows, x, y, scale);
+}

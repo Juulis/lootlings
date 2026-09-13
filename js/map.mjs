@@ -1,5 +1,4 @@
-import { drawSprite } from "./sprites.mjs";
-import { DECOR_SCALE } from "./decor-sprites.mjs";
+import { drawDecor, DECOR_SCALE } from "./decor-sprites.mjs";
 
 const TILE = 64;
 const COLS = 140;
@@ -50,8 +49,7 @@ function scatterProps(walk, ground, path, rng) {
 
   const start = path[0];
   if (start) {
-    const s = pix(start.x, start.y + 2);
-    if (take(start.x, start.y + 2)) props.push({ kind: "sign", ...s, solid: false });
+    if (take(start.x, start.y + 2)) props.push({ kind: "sign", ...pix(start.x, start.y + 2), solid: false });
     if (take(start.x, start.y - 2)) props.push({ kind: "lantern", ...pix(start.x, start.y - 2), solid: false });
   }
 
@@ -77,12 +75,11 @@ function scatterProps(walk, ground, path, rng) {
     const wy = p.y + (rng() < 0.5 ? -2 : 2);
     if (take(wx, wy) && inBounds(wx, wy)) {
       const kind = rng() < 0.35 ? "well" : rng() < 0.5 ? "chest" : "crate";
-      const solid = kind !== "chest";
       if (kind === "well") {
         carve(walk, ground, wx, wy, 1, 1);
         block(walk, wx, wy);
       }
-      props.push({ kind, ...pix(wx, wy), solid });
+      props.push({ kind, ...pix(wx, wy), solid: kind === "well" || kind === "crate" });
     }
   }
 
@@ -111,10 +108,14 @@ function scatterProps(walk, ground, path, rng) {
   const goal = path[path.length - 1];
   if (goal && take(goal.x, goal.y - 2)) {
     props.push({ kind: "lantern", ...pix(goal.x, goal.y - 2), solid: false });
-    props.push({ kind: "column", ...pix(goal.x - 2, goal.y), solid: true });
-    block(walk, goal.x - 2, goal.y);
-    props.push({ kind: "column", ...pix(goal.x + 2, goal.y), solid: true });
-    block(walk, goal.x + 2, goal.y);
+    if (take(goal.x - 2, goal.y)) {
+      props.push({ kind: "column", ...pix(goal.x - 2, goal.y), solid: true });
+      block(walk, goal.x - 2, goal.y);
+    }
+    if (take(goal.x + 2, goal.y)) {
+      props.push({ kind: "column", ...pix(goal.x + 2, goal.y), solid: true });
+      block(walk, goal.x + 2, goal.y);
+    }
   }
 
   return props;
@@ -155,7 +156,6 @@ export function generateFloor(floor = 1) {
     }
   }
   carve(walk, ground, goalX, goalY, 2, 3);
-
   const props = scatterProps(walk, ground, path, rng);
 
   return {
@@ -271,8 +271,7 @@ export function drawMap(ctx, map, camX, camY, viewW, viewH, timeMs) {
   }
 
   const pad = 90;
-  const list = map.props || [];
-  for (const p of list) {
+  for (const p of map.props || []) {
     if (p.x < camX - pad || p.y < camY - pad || p.x > camX + viewW + pad || p.y > camY + viewH + pad) continue;
     const scale = DECOR_SCALE[p.kind] || 3;
     if (p.kind === "lantern") {
@@ -282,6 +281,6 @@ export function drawMap(ctx, map, camX, camY, viewW, viewH, timeMs) {
       ctx.arc(p.x, p.y, 28, 0, Math.PI * 2);
       ctx.fill();
     }
-    drawSprite(ctx, p.kind, p.x, p.y, { scale, shadow: p.kind !== "flower" });
+    drawDecor(ctx, p.kind, p.x, p.y, scale);
   }
 }
