@@ -98,7 +98,7 @@
   color: #2a1800;
   font-weight: 800;
 }
-.inv-card { max-width: 640px; }
+.inv-card { max-width: 640px; position: relative; }
 #inv-equip {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -132,6 +132,16 @@
 .inv-item { cursor: pointer; }
 .inv-item:hover { filter: brightness(1.15); }
 .inv-empty { opacity: .7; }
+#item-tip {
+  background: #12082e;
+  border: 3px solid #ffe566;
+  border-radius: 12px;
+  padding: 8px 10px;
+  margin: 8px 0;
+  font-size: .82rem;
+  line-height: 1.35;
+}
+#item-tip b { display: block; font-size: .95rem; margin-bottom: 2px; }
 @media (max-width: 700px) and (orientation: landscape) {
   .orb { width: 64px; height: 64px; }
   .xp-wrap { width: min(180px, 30vw); height: 14px; }
