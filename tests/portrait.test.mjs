@@ -13,6 +13,9 @@ assert(!html.includes("screen-orientation"), "ingen landscape-meta");
 assert(!css.includes("#app { display: none; }"), "appen göms inte i portrait");
 assert(css.includes("orientation: portrait"), "portrait-layout finns");
 assert(!main.includes("lockLandscape"), "ingen orientation.lock");
+assert(css.includes("z-index: 30"), "meny ligger över orbs");
+assert(css.includes("#stage-wrap:has(> .overlay:not(.hidden)) #d2hud"), "orbs göms när meny är öppen");
+assert(/<\/div>\s*<button type="button" id="inv-btn"/.test(html), "väska sitter i header-raden");
 
 console.log("ok stående läge");
 console.log("\n1 tester godkända");
