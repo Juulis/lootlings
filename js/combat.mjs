@@ -74,9 +74,9 @@ export function isAttackHeld({ keys = {}, pointerDown = false, touchAttack = fal
   return !!(keys[" "] || keys.space || pointerDown || touchAttack);
 }
 
-/** Attack is independent of movement: swing if held or a target is in range. */
-export function shouldSwing({ held = false, targetInRange = false, attackTimer = 0 } = {}) {
-  return attackTimer <= 0 && (held || targetInRange);
+/** Attack only when the player holds the attack button. Walking never swings on its own. */
+export function shouldSwing({ held = false, attackTimer = 0 } = {}) {
+  return attackTimer <= 0 && !!held;
 }
 
 export function applyMove(pos, { mx, my }, speed, dt, bounds) {

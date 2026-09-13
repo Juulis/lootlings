@@ -135,10 +135,10 @@ test("attack medan man går", () => {
   const enemies = [{ x: 10, y: 0 }, { x: 80, y: 0 }];
   const near = nearestTarget({ x: 0, y: 0 }, enemies);
   assert(near.x === 10, "närmaste fiende");
-  assert(shouldSwing({ held: true, targetInRange: false, attackTimer: 0 }), "håll slår");
-  assert(shouldSwing({ held: false, targetInRange: true, attackTimer: 0 }), "auto i range");
-  assert(!shouldSwing({ held: true, targetInRange: true, attackTimer: 0.2 }), "cooldown stoppar");
-  assert(!shouldSwing({ held: false, targetInRange: false, attackTimer: 0 }), "ingen input");
+  assert(shouldSwing({ held: true, attackTimer: 0 }), "håll slår");
+  assert(!shouldSwing({ held: false, targetInRange: true, attackTimer: 0 }), "ingen auto i range");
+  assert(!shouldSwing({ held: true, attackTimer: 0.2 }), "cooldown stoppar");
+  assert(!shouldSwing({ held: false, attackTimer: 0 }), "ingen input");
   assert(isAttackHeld({ keys: { " ": true } }), "mellanslag hålls");
   assert(isAttackHeld({ pointerDown: true }), "mus hålls");
   assert(isAttackHeld({ touchAttack: true }), "touch hålls");
