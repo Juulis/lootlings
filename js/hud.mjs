@@ -3,6 +3,7 @@ import { bakeSprite, SLOT_SPRITES } from "./sprites.mjs";
 import { statsOf } from "./stats.mjs";
 import { SKILLS } from "./skills.mjs";
 import { versionLabel } from "./version.mjs";
+import { iconFor } from "./gear-looks.mjs";
 
 export function log(msg) {
   const el = document.getElementById("log");
@@ -77,7 +78,7 @@ export function refreshHud(state) {
     const d = document.createElement("div");
     d.className = "slot";
     d.style.borderColor = it?.color || "#fff3";
-    const icon = bakeSprite(SLOT_SPRITES[slot] || "charm", 2);
+    const icon = bakeSprite(iconFor(it, h.classId, SLOT_SPRITES[slot] || "charm"), 2);
     d.innerHTML = `<img alt="" src="${icon}" /><span>${it ? `${it.name} ${it.power}` : slot}</span>`;
     gear.appendChild(d);
   });
