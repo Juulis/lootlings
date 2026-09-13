@@ -1,4 +1,5 @@
 import { drawDecor, DECOR_SCALE } from "./decor-sprites.mjs";
+import { diversifyHouses } from "./houses.mjs";
 
 const TILE = 64;
 const COLS = 140;
@@ -156,7 +157,7 @@ export function generateFloor(floor = 1) {
     }
   }
   carve(walk, ground, goalX, goalY, 2, 3);
-  const props = scatterProps(walk, ground, path, rng);
+  const props = diversifyHouses(scatterProps(walk, ground, path, rng), rng);
 
   return {
     w: COLS * TILE,
@@ -337,7 +338,7 @@ export function drawMap(ctx, map, camX, camY, viewW, viewH, timeMs) {
   const pad = 100;
   for (const p of map.props || []) {
     if (p.x < camX - pad || p.y < camY - pad || p.x > camX + viewW + pad || p.y > camY + viewH + pad) continue;
-    const scale = DECOR_SCALE[p.kind] || 3;
+    const scale = p.scale || DECOR_SCALE[p.kind] || 3;
     if (p.kind === "lantern") {
       const glow = 0.2 + Math.sin(timeMs / 220 + p.x) * 0.07;
       ctx.fillStyle = `rgba(255, 215, 106, ${glow})`;
