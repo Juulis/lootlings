@@ -4,6 +4,7 @@ import { enemyStats } from "./combat.mjs";
 import { statsOf } from "./stats.mjs";
 import { log, toast, refreshHud } from "./hud.mjs";
 import { burst } from "./fx.mjs";
+import { generateFloor, pathSpots } from "./map.mjs";
 
 export function startRun(state, classId) {
   state.hero = createHero(classId);
@@ -24,25 +25,28 @@ export function startRun(state, classId) {
 export function spawnFloor(state) {
   const h = state.hero;
   const isBoss = h.floor % 5 === 0;
-  state.pos = { x: 120, y: state.map.h / 2 };
+  state.map = generateFloor(h.floor);
+  state.pos = { ...state.map.start };
   state.enemies = [];
   state.projectiles = [];
   state.pickups = [];
   state.portal = null;
-  const n = isBoss ? 1 : 3 + Math.min(6, Math.floor(h.floor * 0.7));
+  const n = isBoss ? 1 : 4 + Math.min(8, Math.floor(h.floor * 0.8));
+  const spots = pathSpots(state.map, n, 500);
   for (let i = 0; i < n; i++) {
     const kind = isBoss ? "boss" : ["slime", "bat", "shroom"][i % 3];
     const st = enemyStats(h.floor, isBoss);
+    const spot = spots[i] || state.map.goal;
     state.enemies.push({
       id: i, kind, isBoss,
-      x: 420 + Math.random() * 380,
-      y: 80 + Math.random() * (state.map.h - 160),
+      x: spot.x + (Math.random() - 0.5) * 20,
+      y: spot.y + (Math.random() - 0.5) * 20,
       hp: st.hp, maxHp: st.hp, damage: st.damage,
       speed: st.speed, range: st.range,
       cd: 0.4 + Math.random(), swing: 0,
     });
   }
-  log(isBoss ? `Våning ${h.floor}: en stor väktare!` : `Våning ${h.floor}: ${n} monster`);
+  log(isBoss ? `Våning ${h.floor}: en stor väktare längs stigen!` : `Våning ${h.floor}: följ stigen · ${n} monster`);
 }
 
 export function gainXp(state, amount) {
@@ -75,8 +79,8 @@ export function killEnemy(state, en) {
   } else toast(`+${loot.gold} guld`);
   burst(state, en.x, en.y, en.isBoss ? "#ffd76a" : "#9ae6ff");
   if (state.enemies.length === 0) {
-    state.portal = { x: state.map.w - 90, y: state.map.h / 2 };
-    log("Portalen lyser. Gå in!");
+    state.portal = { x: state.map.goal.x, y: state.map.goal.y };
+    log("Portalen lyser längst bort på stigen. Följ guldet!");
   }
   refreshHud(state);
 }
@@ -86,7 +90,7 @@ export function applyDrop(hero, item) {
   if (!cur || compareItems(cur, item) < 0) {
     if (cur) hero.bag.push(cur);
     hero.gear[item.slot] = item;
-    const s = statsOf(hero);
+  const s = statsOf(hero);
     if (hero.hp > s.maxHp) hero.hp = s.maxHp;
     return "equip";
   }
