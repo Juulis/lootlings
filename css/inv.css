@@ -137,3 +137,9 @@
   .xp-wrap { width: min(180px, 30vw); height: 14px; }
   #d2hud { bottom: 4px; }
 }
+@media (orientation: portrait) and (pointer: coarse) {
+  .orb { width: 56px; height: 56px; }
+  .xp-wrap { width: min(140px, 38vw); height: 14px; margin-bottom: 6px; }
+  #d2hud { bottom: 128px; gap: 6px; }
+  .invt { right: 12px; bottom: 100px; }
+}
