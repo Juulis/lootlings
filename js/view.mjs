@@ -1,8 +1,9 @@
-import { drawDungeon, drawHpBar, drawLootIcon, drawPortal, drawSprite } from "./sprites.mjs";
+import { drawHpBar, drawLootIcon, drawPortal, drawSprite } from "./sprites.mjs";
 import { poseFrame } from "./pose.mjs";
 import { drawHeldWeapon } from "./weapons.mjs";
 import { drawParticles } from "./fx.mjs";
 import { setSkillLabel } from "./hud.mjs";
+import { drawMap } from "./map.mjs";
 
 export function worldFromScreen(state, canvas) {
   const viewW = canvas.clientWidth;
@@ -22,7 +23,7 @@ export function draw(ctx, state, canvas) {
   ctx.save();
   ctx.translate(-camX, -camY);
 
-  drawDungeon(ctx, state.map, now);
+  drawMap(ctx, state.map, camX, camY, viewW, viewH, now);
 
   if (state.portal) {
     drawPortal(ctx, state.portal.x, state.portal.y, now);

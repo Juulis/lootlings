@@ -1,13 +1,16 @@
+import { generateFloor } from "./map.mjs";
+
 export function createState() {
+  const map = generateFloor(1);
   return {
     mode: "menu",
     hero: null,
-    pos: { x: 400, y: 300 },
+    pos: { ...map.start },
     enemies: [],
     projectiles: [],
     pickups: [],
     particles: [],
-    map: { w: 900, h: 640 },
+    map,
     keys: {},
     pointer: { x: 0, y: 0, down: false },
     stick: { x: 0, y: 0, active: false },
