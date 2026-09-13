@@ -133,6 +133,16 @@
 .inv-item { cursor: pointer; }
 .inv-item:hover { filter: brightness(1.15); }
 .inv-empty { opacity: .7; }
+#item-tip {
+  background: #12082e;
+  border: 3px solid #ffe566;
+  border-radius: 12px;
+  padding: 8px 10px;
+  margin: 8px 0;
+  font-size: .82rem;
+  line-height: 1.35;
+}
+#item-tip b { display: block; font-size: .95rem; margin-bottom: 2px; }
 @media (max-width: 700px) and (orientation: landscape) {
   .orb { width: 52px; height: 52px; }
   .xp-wrap { width: min(140px, 26vw); height: 12px; margin-bottom: 4px; }
