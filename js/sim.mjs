@@ -6,6 +6,7 @@ import { die, nextFloor } from "./run.mjs";
 import { fireAttack, nearestEnemy, tickProjectiles } from "./actions.mjs";
 import { regenMana } from "./inventory.mjs";
 import { tryMove, isWalkable } from "./map.mjs";
+import { nearestDoor, enterHouse, leaveHouse } from "./house.mjs";
 
 export function update(state, dt) {
   if (state.mode !== "play" || !state.hero) return;
@@ -18,6 +19,7 @@ export function update(state, dt) {
   const s = statsOf(h);
   state.attackTimer = Math.max(0, state.attackTimer - dt);
   state.skillTimer = Math.max(0, state.skillTimer - dt);
+  state.houseCool = Math.max(0, (state.houseCool || 0) - dt);
   state.skillCds = state.skillCds || {};
   for (const id of Object.keys(state.skillCds)) {
     state.skillCds[id] = Math.max(0, state.skillCds[id] - dt);
@@ -63,7 +65,14 @@ export function update(state, dt) {
   });
 
   tickProjectiles(state, dt);
-  if (state.portal && dist(state.pos, state.portal) < 46) nextFloor(state);
+  if (!state.indoor) {
+    const door = nearestDoor(state);
+    if (door) enterHouse(state, door);
+  }
+  if (state.portal && dist(state.pos, state.portal) < 46) {
+    if (state.indoor) leaveHouse(state);
+    else nextFloor(state);
+  }
   tickParticles(state, dt);
   refreshHud(state);
 }

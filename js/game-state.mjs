@@ -26,5 +26,9 @@ export function createState() {
     portal: null,
     invOpen: false,
     skillsOpen: false,
+    indoor: false,
+    world: null,
+    houseCool: 0,
+    clearedHouses: {},
   };
 }
