@@ -1,6 +1,7 @@
 import { bakeSprite, SLOT_SPRITES } from "./sprites.mjs";
 import { statsOf } from "./stats.mjs";
 import { log, refreshHud } from "./hud.mjs";
+import { playSfx } from "./audio.mjs";
 
 export const MANA_COST = { knight: 16, mage: 28, archer: 18 };
 
@@ -22,6 +23,7 @@ export function regenMana(hero, dt, maxMana) {
 export function toggleInv(state) {
   if (!state.hero || (state.mode !== "play" && !state.invOpen)) return false;
   state.invOpen = !state.invOpen;
+  playSfx(state.invOpen ? "bag" : "click");
   return state.invOpen;
 }
 

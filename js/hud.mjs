@@ -2,6 +2,7 @@ import { CLASSES } from "./classes.mjs";
 import { bakeSprite, SLOT_SPRITES } from "./sprites.mjs";
 import { statsOf } from "./stats.mjs";
 import { SKILLS } from "./skills.mjs";
+import { unlockAudio, playSfx } from "./audio.mjs";
 
 export function log(msg) {
   const el = document.getElementById("log");
@@ -10,6 +11,17 @@ export function log(msg) {
   line.textContent = msg;
   el.prepend(line);
   while (el.children.length > 5) el.lastChild.remove();
+}
+
+let toastTimer = 0;
+export function toast(msg) {
+  if (typeof document === "undefined") return;
+  const el = document.getElementById("toast");
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.remove("hidden");
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.add("hidden"), 2200);
 }
 
 function n(v, fallback = 0) {
@@ -65,15 +77,18 @@ export function refreshHud(state) {
 }
 
 export function renderMenu(onPick) {
+  if (typeof document === "undefined") return;
   const box = document.getElementById("class-picks");
+  if (!box) return;
   box.innerHTML = "";
   Object.values(CLASSES).forEach((c) => {
     const btn = document.createElement("button");
+    btn.type = "button";
     btn.className = "class-btn";
     const thumb = bakeSprite(c.id, 3);
     btn.innerHTML = `<img class="class-art" alt="" src="${thumb}" /><b>${c.name}</b><small>${c.blurb}</small><br><small>Smäll · Stjärna · Salva</small>`;
     btn.style.borderColor = c.color;
-    btn.onclick = () => onPick(c.id);
+    btn.onclick = () => { unlockAudio(); playSfx("click"); onPick(c.id); };
     box.appendChild(btn);
   });
 }
