@@ -1,4 +1,4 @@
-/** Barnvänliga 16x16-föremål: hus, träd, sten, brunn, lykta. */
+/** Barnvänliga 16x16-föremål: hus, träd, sten, brunn, lykta, vegetation. */
 import { PALETTE, paintPixels, drawSprite } from "./sprites.mjs";
 
 export const DECOR_SPRITES = {
@@ -22,32 +22,86 @@ export const DECOR_SPRITES = {
   ],
   tree: [
     "................",
-    ".....kdddkk.....",
-    "...kdaaaaadk....",
-    "..kdaawaaadk....",
-    ".kdaaaaaaaadk...",
-    ".kdaaaaaaaadk...",
-    "..kdaaaaaadk....",
-    "...kdaaaadk.....",
-    "....kkukkk......",
-    ".....kuuk.......",
-    ".....kuuk.......",
-    ".....kuuk.......",
-    "....kuuuuk......",
-    "................",
+    "....kddddddk....",
+    "...kdaaaaawdk...",
+    "..kdaawaaaadk...",
+    ".kdaaaaaaaaadk..",
+    ".kdalaaaalaadk..",
+    ".kdaaaaaaaaadk..",
+    "..kdaaaaaaadk...",
+    "...kdaaaaddk....",
+    "....kkukkkk.....",
+    ".....kuuuk......",
+    ".....kuuuk......",
+    "....kuuuuuk.....",
+    "...kuuuuuuuk....",
     "................",
     "................",
   ],
   bush: [
     "................",
     "................",
+    "....kdadddk.....",
+    "...kdaaaaadk....",
+    "..kdalaaaaldk...",
+    "..kdaawaaardk...",
+    ".kdalaaaaaldk...",
+    ".kdaaaaaaaadk...",
+    "..kdaaaaaadk....",
+    "...kddddddk.....",
+    "....kuuukk......",
     "................",
-    "....klllllk.....",
-    "...kllallllk....",
-    "..kllaaalallk...",
-    "..klllllllllk...",
-    "...klllllllk....",
-    "....kkkkkkk.....",
+    "................",
+    "................",
+    "................",
+    "................",
+  ],
+  bush2: [
+    "................",
+    "...kllaaallk....",
+    "..kllallalllk...",
+    ".kllaaawaaallk..",
+    ".kllallmllallk..",
+    "kllaaaaaaaaallk.",
+    ".kllaaalaaallk..",
+    "..kllllllllk....",
+    "...kddddddk.....",
+    "....kuuuk.......",
+    "................",
+    "................",
+    "................",
+    "................",
+    "................",
+    "................",
+  ],
+  fern: [
+    "................",
+    "......kak.......",
+    ".....kaak.......",
+    "....kalaak......",
+    "...kaa.aaak.....",
+    "..kalakaalak....",
+    ".kaaa.k.aaak....",
+    "..kakkaakak.....",
+    "....kkaakk......",
+    ".....kuuk.......",
+    ".....kuuk.......",
+    "................",
+    "................",
+    "................",
+    "................",
+    "................",
+  ],
+  tallgrass: [
+    "................",
+    "................",
+    ".a...a.l..a.....",
+    "aa..la.l.aa.l...",
+    "la.lal.l.al.a...",
+    "al.ala.a.la.l...",
+    "la.lal.l.al.a...",
+    "d..d.d.d..d.d...",
+    "................",
     "................",
     "................",
     "................",
@@ -149,14 +203,14 @@ export const DECOR_SPRITES = {
   flower: [
     "................",
     "................",
-    "................",
     "......kmk.......",
     ".....kmwmk......",
-    "......kmk.......",
+    "....kmmmmm k....".replace(" ", "k"),
+    ".....kmwmk......",
     "......kak.......",
     ".....kaak.......",
-    "......kak.......",
-    "................",
+    "....kalaak......",
+    ".....kaak.......",
     "................",
     "................",
     "................",
@@ -170,6 +224,9 @@ export const DECOR_SCALE = {
   cottage: 5,
   tree: 4,
   bush: 3,
+  bush2: 3,
+  fern: 3,
+  tallgrass: 3,
   rock: 3,
   well: 3,
   sign: 3,
@@ -180,12 +237,14 @@ export const DECOR_SCALE = {
   flower: 2,
 };
 
+const SWAY = new Set(["tree", "bush", "bush2", "fern", "tallgrass", "flower"]);
+
 export function validateDecor() {
   for (const [name, rows] of Object.entries(DECOR_SPRITES)) {
     const w = rows[0].length;
-    if (rows.length !== 16 || w !== 16) throw new Error(`${name} inte 16x16`);
+    if (rows.length !== 16 || w !== 16) throw new Error(`${name} inte 16x16 (${rows.length}x${w})`);
     for (const row of rows) {
-      if (row.length !== w) throw new Error(`ojämn rad i ${name}`);
+      if (row.length !== w) throw new Error(`ojämn rad i ${name}: ${row.length} ${row}`);
       for (const ch of row) {
         if (!(ch in PALETTE)) throw new Error(`färg ${ch} i ${name}`);
       }
@@ -194,7 +253,7 @@ export function validateDecor() {
   return Object.keys(DECOR_SPRITES);
 }
 
-export function drawDecor(ctx, kind, cx, cy, scale = 3) {
+export function drawDecor(ctx, kind, cx, cy, scale = 3, timeMs = 0) {
   const rows = DECOR_SPRITES[kind];
   if (!rows) {
     drawSprite(ctx, kind, cx, cy, { scale, shadow: true });
@@ -202,9 +261,10 @@ export function drawDecor(ctx, kind, cx, cy, scale = 3) {
   }
   const w = 16 * scale;
   const h = 16 * scale;
-  const x = Math.round(cx - w / 2);
+  const sway = SWAY.has(kind) ? Math.sin(timeMs / 280 + cx * 0.02) * (kind === "tree" ? 2.2 : 1.4) : 0;
+  const x = Math.round(cx - w / 2 + sway);
   const y = Math.round(cy - h / 2);
-  ctx.fillStyle = "rgba(0,0,0,0.25)";
+  ctx.fillStyle = "rgba(0,0,0,0.22)";
   ctx.beginPath();
   ctx.ellipse(cx, cy + h * 0.36, w * 0.3, h * 0.1, 0, 0, Math.PI * 2);
   ctx.fill();
