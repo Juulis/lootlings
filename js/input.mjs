@@ -1,4 +1,4 @@
-import { openSkillPick } from "./run.mjs";
+import { toast } from "./hud.mjs";
 
 export function bindInput(state, { canvas, fireAttack, useSkill }) {
   window.addEventListener("keydown", (e) => {
@@ -16,7 +16,8 @@ export function bindInput(state, { canvas, fireAttack, useSkill }) {
     if (e.key === "2") useSkill(state, "star");
     if (e.key === "3") useSkill(state, "volley");
     if (e.key.toLowerCase() === "k") {
-      openSkillPick(state);
+      const n = state.hero?.skillPoints || 0;
+      toast(n ? `Poäng ${n}. 1/2/3 låser upp.` : "Inga skillpoints. Levela mer.");
     }
   });
   window.addEventListener("keyup", (e) => {
