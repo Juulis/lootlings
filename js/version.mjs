@@ -1,6 +1,6 @@
 /** Semver: major.feature.patch. Stampel är datum + hh:mm när versionen släpptes. */
-export const SEMVER = "1.1.0";
-export const STAMP = "2026-09-13 02:23";
+export const SEMVER = "1.2.0";
+export const STAMP = "2026-09-13 02:26";
 
 export function versionLabel() {
   return `${STAMP} · ${SEMVER}`;
