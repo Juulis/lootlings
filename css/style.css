@@ -198,29 +198,28 @@ button.ghost {
   background: #0004; padding: 8px 10px; border-radius: 10px;
 }
 
-#tilt {
-  display: none;
-  position: fixed; inset: 0; z-index: 40;
-  background: #1a1030;
-  color: #fff6d8;
-  align-items: center; justify-content: center;
-  text-align: center;
-  padding: 24px;
-  font-size: 1.2rem;
-}
-#tilt b { display: block; font-size: 1.6rem; margin-bottom: 8px; }
-
-@media (orientation: portrait) and (pointer: coarse) {
-  #tilt { display: flex; }
-  #app { display: none; }
-}
-
 @media (max-width: 700px) and (orientation: landscape) {
   .classes { grid-template-columns: repeat(3, 1fr); }
   .stats { font-size: .75rem; }
   .bar { width: 72px; }
   header { padding: 4px 10px; }
   h1 { font-size: 1rem; }
+}
+
+@media (orientation: portrait) {
+  header { padding: 6px 8px; flex-wrap: wrap; }
+  h1 { font-size: 1rem; }
+  .stats { font-size: .75rem; }
+  .classes { grid-template-columns: 1fr; }
+  .class-art { width: 56px; height: 56px; }
+  .card { padding: 12px; max-height: 92%; overflow: auto; }
+  .stick { width: 96px; height: 96px; left: 12px; bottom: 16px; }
+  .stick-knob { left: 24px; top: 24px; }
+  .atk, .skl { width: 64px; height: 64px; bottom: 16px; }
+  .atk { right: 12px; }
+  .skl { right: 84px; }
+  #log { max-width: 160px; font-size: .7rem; }
+  #toast { max-width: 70vw; }
 }
 
 #hero-stats {
