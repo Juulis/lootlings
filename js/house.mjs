@@ -1,5 +1,6 @@
 import { enemyStats, dist } from "./combat.mjs";
 import { log, toast } from "./hud.mjs";
+import { HOUSE_KINDS } from "./decor-sprites.mjs";
 
 const TILE = 64;
 
@@ -11,7 +12,7 @@ function hash(str) {
 
 export function houseDoors(map) {
   return (map?.props || [])
-    .filter((p) => p.kind === "cottage")
+    .filter((p) => HOUSE_KINDS.includes(p.kind))
     .map((p) => ({
       x: p.x,
       y: p.y + 52,
