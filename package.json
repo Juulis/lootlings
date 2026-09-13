@@ -1,11 +1,11 @@
 {
   "name": "lootlings",
-  "version": "1.5.1",
+  "version": "1.6.1",
   "private": true,
   "type": "module",
   "description": "Diablo-liknande äventyrsspel för barn",
   "scripts": {
-    "test": "node tests/game.test.mjs && node tests/api.test.mjs && node tests/weapons.test.mjs && node tests/skills.test.mjs && node tests/inventory.test.mjs && node tests/loot-auto.test.mjs && node tests/hud.test.mjs && node tests/audio.test.mjs && node tests/touch-guard.test.mjs && node tests/portrait.test.mjs && node tests/map.test.mjs && node tests/version.test.mjs && node tests/item-info.test.mjs && node tests/skill-panel.test.mjs && node tests/gear.test.mjs && node tests/house.test.mjs && node tests/actions.test.mjs",
+    "test": "node tests/game.test.mjs && node tests/api.test.mjs && node tests/weapons.test.mjs && node tests/skills.test.mjs && node tests/inventory.test.mjs && node tests/loot-auto.test.mjs && node tests/hud.test.mjs && node tests/audio.test.mjs && node tests/touch-guard.test.mjs && node tests/portrait.test.mjs && node tests/map.test.mjs && node tests/version.test.mjs && node tests/item-info.test.mjs && node tests/skill-panel.test.mjs && node tests/gear.test.mjs && node tests/house.test.mjs && node tests/actions.test.mjs && node tests/boot.test.mjs",
     "start": "npx --yes serve ."
   }
 }

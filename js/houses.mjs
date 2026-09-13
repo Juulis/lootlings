@@ -1,4 +1,6 @@
-import { HOUSE_KINDS, DECOR_SCALE } from "./decor-sprites.mjs";
+import { DECOR_SCALE } from "./decor-sprites.mjs";
+
+export const HOUSE_KINDS = ["cottage", "hut", "barn", "tower", "cottage_round"];
 
 export function isHouse(kind) {
   return HOUSE_KINDS.includes(kind);
