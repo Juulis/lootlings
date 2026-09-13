@@ -9,7 +9,7 @@ import { tryMove, isWalkable } from "./map.mjs";
 
 export function update(state, dt) {
   if (state.mode !== "play" || !state.hero) return;
-  if (state.invOpen) {
+  if (state.invOpen || state.skillsOpen) {
     tickParticles(state, dt);
     refreshHud(state);
     return;
@@ -31,7 +31,6 @@ export function update(state, dt) {
   if (move.mx < -0.15) state.facingLeft = true;
   else if (move.mx > 0.15) state.facingLeft = false;
 
-  const target = nearestEnemy(state);
   const held = isAttackHeld({
     keys: state.keys,
     pointerDown: state.pointer.down,
