@@ -6,6 +6,7 @@ import { versionLabel } from "./version.mjs";
 import { iconFor } from "./gear-looks.mjs";
 
 export function log(msg) {
+  if (typeof document === "undefined") return;
   const el = document.getElementById("log");
   if (!el) return;
   const line = document.createElement("div");
@@ -40,6 +41,7 @@ export function showVersion() {
 export function refreshHud(state) {
   const h = state.hero;
   if (!h) return;
+  if (typeof document === "undefined") return;
   const s = statsOf(h);
   const hp = Math.max(0, n(h.hp));
   const maxHp = Math.max(1, n(s.maxHp, 1));

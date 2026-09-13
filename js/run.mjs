@@ -5,6 +5,7 @@ import { statsOf } from "./stats.mjs";
 import { log, toast, refreshHud } from "./hud.mjs";
 import { burst } from "./fx.mjs";
 import { generateFloor, pathSpots } from "./map.mjs";
+import { openSkills } from "./skill-panel.mjs";
 
 export function startRun(state, classId) {
   state.hero = createHero(classId);
@@ -13,13 +14,14 @@ export function startRun(state, classId) {
   state.hero.hp = st0.maxHp;
   state.hero.mana = st0.maxMana;
   state.invOpen = false;
+  state.skillsOpen = false;
   state.mode = "play";
-  document.getElementById("overlay").classList.add("hidden");
-  document.getElementById("dead-overlay").classList.add("hidden");
+  document.getElementById("overlay")?.classList.add("hidden");
+  document.getElementById("dead-overlay")?.classList.add("hidden");
   spawnFloor(state);
   log(`${state.hero.name} går in i grottan!`);
   refreshHud(state);
-  if (state.hero.skillPoints > 0) toast("Skillpoint! 1 Smäll · 2 Stjärna · 3 Salva");
+  if (state.hero.skillPoints > 0) openSkills(state);
 }
 
 export function spawnFloor(state) {
@@ -56,7 +58,8 @@ export function gainXp(state, amount) {
     h.xp -= h.xpToLevel;
     applyLevelUp(h);
     if (h.xp < 0) h.xp = 0;
-    toast(`Nivå ${h.level}! +1 skillpoint. 1/2/3 låser upp.`);
+    toast(`Nivå ${h.level}! +1 skillpoint.`);
+    openSkills(state);
   }
   const s = statsOf(h);
   if (h.hp > s.maxHp) h.hp = s.maxHp;
