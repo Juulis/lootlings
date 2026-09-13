@@ -1,5 +1,5 @@
 import { generateFloor } from "../js/map.mjs";
-import { generateHouse, enterHouse, leaveHouse, nearestDoor } from "../js/house.mjs";
+import { generateHouse, enterHouse, leaveHouse, nearestDoor, houseDoors } from "../js/house.mjs";
 import { createState } from "../js/game-state.mjs";
 import { createHero } from "../js/classes.mjs";
 
@@ -8,15 +8,14 @@ function assert(cond, msg) {
 }
 
 const over = generateFloor(2);
-const doors = (over.props || []).filter((p) => p.enter && p.houseId);
+const doors = houseDoors(over);
 assert(doors.length >= 1, "dörrar vid hus");
-assert((over.props || []).some((p) => p.kind === "cottage" && p.houseId), "stuga har id");
 
-const bossHouse = generateHouse(3, "aaa");
-const swarmHouse = generateHouse(3, "bbb");
-assert(bossHouse.indoor && swarmHouse.indoor, "inomhus-flagga");
-assert(bossHouse.w < 2000 && bossHouse.h < 1200, "litet hus");
-assert(bossHouse.houseBoss !== swarmHouse.houseBoss || true, "variant finns");
+const a = generateHouse(3, "aaa");
+const b = generateHouse(3, "bbb");
+assert(a.indoor && b.indoor, "inomhus-flagga");
+assert(a.w < 2000 && a.h < 1200, "litet hus");
+assert(typeof a.houseBoss === "boolean", "boss- eller svärm-hus");
 
 const state = createState();
 state.hero = createHero("knight");

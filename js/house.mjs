@@ -1,5 +1,4 @@
-import { enemyStats } from "./combat.mjs";
-import { dist } from "./combat.mjs";
+import { enemyStats, dist } from "./combat.mjs";
 import { log, toast } from "./hud.mjs";
 
 const TILE = 64;
@@ -10,12 +9,22 @@ function hash(str) {
   return h >>> 0;
 }
 
+export function houseDoors(map) {
+  return (map?.props || [])
+    .filter((p) => p.kind === "cottage")
+    .map((p) => ({
+      x: p.x,
+      y: p.y + 52,
+      houseId: p.houseId || `h${Math.round(p.x)}-${Math.round(p.y)}`,
+      enter: true,
+    }));
+}
+
 export function nearestDoor(state) {
-  if (!state.map?.props || state.indoor) return null;
+  if (!state.map || state.indoor) return null;
   let best = null;
-  let bestD = 48;
-  for (const p of state.map.props) {
-    if (!p.enter || !p.houseId) continue;
+  let bestD = 46;
+  for (const p of houseDoors(state.map)) {
     if (state.clearedHouses?.[p.houseId]) continue;
     const d = dist(state.pos, p);
     if (d < bestD) {
@@ -43,14 +52,14 @@ export function generateHouse(floor, houseId) {
   const sy = rows - 3;
   walk[sy][sx] = 1;
   const start = { x: sx * TILE + TILE / 2, y: sy * TILE + TILE / 2 };
+  walk[4][4] = 0;
+  walk[4][cols - 5] = 0;
   const props = [
     { kind: "lantern", x: 3 * TILE, y: 3 * TILE, solid: false },
     { kind: "lantern", x: (cols - 4) * TILE, y: 3 * TILE, solid: false },
-    { kind: "crate", x: 4 * TILE, y: 4 * TILE, solid: true },
-    { kind: "crate", x: (cols - 5) * TILE, y: 4 * TILE, solid: true },
+    { kind: "crate", x: 4 * TILE + TILE / 2, y: 4 * TILE + TILE / 2, solid: true },
+    { kind: "crate", x: (cols - 5) * TILE + TILE / 2, y: 4 * TILE + TILE / 2, solid: true },
   ];
-  if (props[2]) walk[4][4] = 0;
-  if (props[3]) walk[4][cols - 5] = 0;
   return {
     w: cols * TILE,
     h: rows * TILE,
@@ -82,8 +91,8 @@ export function spawnHouseCrew(state) {
   for (let i = 0; i < n; i++) {
     const isBoss = boss && i === 0;
     const st = enemyStats(floor + (isBoss ? 1 : 0), isBoss);
-    const tx = 4 + (i % 8);
-    const ty = 3 + Math.floor(i / 8);
+    const tx = 5 + (i % 7);
+    const ty = 3 + (i % 4);
     state.enemies.push({
       id: 800 + i,
       kind: isBoss ? "boss" : ["slime", "bat", "shroom"][i % 3],
