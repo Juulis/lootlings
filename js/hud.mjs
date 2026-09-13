@@ -12,35 +12,33 @@ export function log(msg) {
   while (el.children.length > 5) el.lastChild.remove();
 }
 
-export function toast(msg) {
-  log(msg);
-  const el = document.getElementById("toast");
-  if (!el) return;
-  el.textContent = msg;
-  el.classList.remove("hidden");
-  clearTimeout(toast._t);
-  toast._t = setTimeout(() => el.classList.add("hidden"), 2200);
+function n(v, fallback = 0) {
+  const x = Number(v);
+  return Number.isFinite(x) ? x : fallback;
 }
 
 export function refreshHud(state) {
   const h = state.hero;
   if (!h) return;
   const s = statsOf(h);
+  const hp = Math.max(0, n(h.hp));
+  const maxHp = Math.max(1, n(s.maxHp, 1));
+  const mp = Math.max(0, n(h.mana));
+  const maxMp = Math.max(1, n(s.maxMana, 1));
   const hpFill = document.getElementById("hp-fill");
   const mpFill = document.getElementById("mp-fill");
   const hpTxt = document.getElementById("hp-txt");
   const mpTxt = document.getElementById("mp-txt");
-  const hpPct = Math.max(0, Math.min(100, (h.hp / Math.max(1, s.maxHp)) * 100));
-  const mpPct = Math.max(0, Math.min(100, (h.mana / Math.max(1, s.maxMana || 1)) * 100));
-  if (hpFill) hpFill.style.height = `${hpPct}%`;
-  if (mpFill) mpFill.style.height = `${mpPct}%`;
-  if (hpTxt) hpTxt.textContent = `${Math.ceil(Math.max(0, h.hp))}/${Math.ceil(s.maxHp)}`;
-  if (mpTxt) mpTxt.textContent = `${Math.ceil(Math.max(0, h.mana || 0))}/${Math.ceil(s.maxMana || 0)}`;
+  if (hpFill) hpFill.style.height = `${Math.min(100, (hp / maxHp) * 100)}%`;
+  if (mpFill) mpFill.style.height = `${Math.min(100, (mp / maxMp) * 100)}%`;
+  if (hpTxt) hpTxt.textContent = `${Math.ceil(hp)}/${Math.ceil(maxHp)}`;
+  if (mpTxt) mpTxt.textContent = `${Math.ceil(mp)}/${Math.ceil(maxMp)}`;
   const xp = document.getElementById("xp-fill");
   const xpTxt = document.getElementById("xp-txt");
-  const xpPct = Math.max(0, (h.xp / h.xpToLevel) * 100);
-  if (xp) xp.style.width = `${xpPct}%`;
-  if (xpTxt) xpTxt.textContent = `XP ${h.xp}/${h.xpToLevel}`;
+  const xpNeed = Math.max(1, n(h.xpToLevel, 1));
+  const xpCur = Math.max(0, n(h.xp));
+  if (xp) xp.style.width = `${Math.min(100, (xpCur / xpNeed) * 100)}%`;
+  if (xpTxt) xpTxt.textContent = `XP ${Math.floor(xpCur)}/${Math.floor(xpNeed)}`;
   const meta = document.getElementById("meta");
   if (meta) meta.textContent =
     `${h.name} Nv ${h.level} · Våning ${h.floor} · Guld ${h.gold} · Skada ${s.damage} · Fart ${Math.round(s.speed)}`;

@@ -8,7 +8,11 @@ import { regenMana } from "./inventory.mjs";
 
 export function update(state, dt) {
   if (state.mode !== "play" || !state.hero) return;
-  if (state.invOpen) { tickParticles(state, dt); return; }
+  if (state.invOpen) {
+    tickParticles(state, dt);
+    refreshHud(state);
+    return;
+  }
   const h = state.hero;
   const s = statsOf(h);
   state.attackTimer = Math.max(0, state.attackTimer - dt);
@@ -58,11 +62,11 @@ export function update(state, dt) {
       en.cd = en.isBoss ? 1.1 : 1.35;
       burst(state, state.pos.x, state.pos.y, "#ff6b8a");
       if (h.hp <= 0) die(state);
-      refreshHud(state);
     }
   });
 
   tickProjectiles(state, dt);
   if (state.portal && dist(state.pos, state.portal) < 46) nextFloor(state);
   tickParticles(state, dt);
+  refreshHud(state);
 }
