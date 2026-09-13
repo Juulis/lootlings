@@ -2,7 +2,8 @@ import { createHero, applyLevelUp } from "./classes.mjs";
 import { lootFromKill, compareItems } from "./loot.mjs";
 import { enemyStats } from "./combat.mjs";
 import { statsOf } from "./stats.mjs";
-import { log, toast, refreshHud } from "./hud.mjs";
+import { log, toast, refreshHud, renderSkillMenu } from "./hud.mjs";
+import { SKILLS, canUnlock, unlockSkill, setActiveSkill } from "./skills.mjs";
 import { burst } from "./fx.mjs";
 import { generateFloor, pathSpots } from "./map.mjs";
 
@@ -13,13 +14,14 @@ export function startRun(state, classId) {
   state.hero.hp = st0.maxHp;
   state.hero.mana = st0.maxMana;
   state.invOpen = false;
+  state.skillOpen = false;
   state.mode = "play";
-  document.getElementById("overlay").classList.add("hidden");
-  document.getElementById("dead-overlay").classList.add("hidden");
+  document.getElementById("overlay")?.classList.add("hidden");
+  document.getElementById("dead-overlay")?.classList.add("hidden");
   spawnFloor(state);
   log(`${state.hero.name} går in i grottan!`);
   refreshHud(state);
-  if (state.hero.skillPoints > 0) toast("Skillpoint! 1 Smäll · 2 Stjärna · 3 Salva");
+  openSkillPick(state);
 }
 
 export function spawnFloor(state) {
@@ -56,7 +58,8 @@ export function gainXp(state, amount) {
     h.xp -= h.xpToLevel;
     applyLevelUp(h);
     if (h.xp < 0) h.xp = 0;
-    toast(`Nivå ${h.level}! +1 skillpoint. 1/2/3 låser upp.`);
+    toast(`Nivå ${h.level}!`);
+    openSkillPick(state);
   }
   const s = statsOf(h);
   if (h.hp > s.maxHp) h.hp = s.maxHp;
@@ -130,4 +133,51 @@ export function bindAgain(state) {
   };
 }
 
-export function bindSkills() {}
+export function openSkillPick(state) {
+  if (!state.hero || (state.hero.skillPoints || 0) <= 0) return false;
+  state.skillOpen = true;
+  if (typeof document !== "undefined") {
+    document.getElementById("skill-overlay")?.classList.remove("hidden");
+  }
+  renderSkillMenu(state);
+  return true;
+}
+
+export function closeSkillPick(state) {
+  state.skillOpen = false;
+  if (typeof document !== "undefined") {
+    document.getElementById("skill-overlay")?.classList.add("hidden");
+  }
+  return false;
+}
+
+export function pickSkill(state, id) {
+  const h = state.hero;
+  if (!h || !SKILLS[id]) return false;
+  if (h.skills?.[id]?.unlocked) {
+    setActiveSkill(h, id);
+    toast(`${SKILLS[id].name} vald`);
+  } else if (canUnlock(h, id)) {
+    unlockSkill(h, id);
+    toast(`Låste upp ${SKILLS[id].name}!`);
+    log(`Låste upp ${SKILLS[id].name}!`);
+  } else {
+    toast("Ingen poäng till den kraften.");
+    return false;
+  }
+  refreshHud(state);
+  if ((h.skillPoints || 0) > 0) {
+    renderSkillMenu(state);
+    return true;
+  }
+  closeSkillPick(state);
+  return true;
+}
+
+export function bindSkills(state) {
+  document.getElementById("skill-picks")?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-skill]");
+    if (btn) pickSkill(state, btn.dataset.skill);
+  });
+  document.getElementById("skill-later")?.addEventListener("click", () => closeSkillPick(state));
+}
