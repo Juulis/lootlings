@@ -1,6 +1,7 @@
 import { bakeSprite, SLOT_SPRITES } from "./sprites.mjs";
 import { statsOf } from "./stats.mjs";
 import { log, refreshHud } from "./hud.mjs";
+import { inspectItem, bindHold } from "./item-info.mjs";
 
 export const MANA_COST = { knight: 16, mage: 28, archer: 18 };
 
@@ -38,11 +39,27 @@ export function equipFromBag(hero, bagIndex) {
   return item;
 }
 
+export function showItemTip(item) {
+  const tip = document.getElementById("item-tip");
+  if (!tip) return inspectItem(item);
+  const info = inspectItem(item);
+  tip.innerHTML = `<b style="color:${info.color}">${info.title}</b>${info.lines.map((l) => `<div>${l}</div>`).join("")}`;
+  tip.classList.remove("hidden");
+  return info;
+}
+
+export function hideItemTip() {
+  document.getElementById("item-tip")?.classList.add("hidden");
+}
+
 export function renderInv(state) {
   const overlay = document.getElementById("inv-overlay");
   if (!overlay || !state.hero) return;
   overlay.classList.toggle("hidden", !state.invOpen);
-  if (!state.invOpen) return;
+  if (!state.invOpen) {
+    hideItemTip();
+    return;
+  }
   const h = state.hero;
   const equip = document.getElementById("inv-equip");
   const bag = document.getElementById("inv-bag");
@@ -53,6 +70,7 @@ export function renderInv(state) {
     d.className = "inv-slot";
     d.style.borderColor = it?.color || "#c9a227";
     d.innerHTML = `<img alt="" src="${bakeSprite(SLOT_SPRITES[slot] || "charm", 3)}" /><b>${slot}</b><small>${it ? `${it.name} +${it.power}` : "tom"}</small>`;
+    bindHold(d, { onHold: () => showItemTip(it) });
     equip.appendChild(d);
   });
   bag.innerHTML = "";
@@ -66,12 +84,16 @@ export function renderInv(state) {
     btn.className = "inv-item";
     btn.style.borderColor = it.color;
     btn.innerHTML = `<img alt="" src="${bakeSprite(SLOT_SPRITES[it.slot] || "charm", 3)}" /><b style="color:${it.color}">${it.rarityName}</b><span>${it.name}</span><small>${it.slot} +${it.power}</small>`;
-    btn.onclick = () => {
-      const worn = equipFromBag(h, i);
-      if (worn) log(`Tog på ${worn.name}`);
-      refreshHud(state);
-      renderInv(state);
-    };
+    bindHold(btn, {
+      onHold: () => showItemTip(it),
+      onTap: () => {
+        hideItemTip();
+        const worn = equipFromBag(h, i);
+        if (worn) log(`Tog på ${worn.name}`);
+        refreshHud(state);
+        renderInv(state);
+      },
+    });
     bag.appendChild(btn);
   });
 }
@@ -85,7 +107,11 @@ export function bindInventory(state) {
   document.getElementById("inv-btn")?.addEventListener("click", open);
   document.getElementById("inv-close")?.addEventListener("click", () => {
     state.invOpen = false;
+    hideItemTip();
     renderInv(state);
   });
   document.getElementById("inv-touch")?.addEventListener("click", open);
+  document.getElementById("inv-overlay")?.addEventListener("click", (e) => {
+    if (e.target?.id === "inv-overlay") hideItemTip();
+  });
 }
