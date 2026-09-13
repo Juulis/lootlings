@@ -6,6 +6,7 @@ import { bindInput } from "./input.mjs";
 import { update } from "./sim.mjs";
 import { draw } from "./view.mjs";
 import { bindInventory } from "./inventory.mjs";
+import { bindAudio } from "./audio.mjs";
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -34,6 +35,7 @@ bindAgain(state);
 bindSkills(state);
 bindInput(state, { canvas, fireAttack, useSkill });
 bindInventory(state);
+bindAudio();
 window.addEventListener("lootlings-inv", () => document.getElementById("inv-btn")?.click());
 renderMenu((id) => startRun(state, id));
 resize();
