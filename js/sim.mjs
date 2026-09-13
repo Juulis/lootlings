@@ -9,7 +9,7 @@ import { tryMove, isWalkable } from "./map.mjs";
 
 export function update(state, dt) {
   if (state.mode !== "play" || !state.hero) return;
-  if (state.invOpen) {
+  if (state.invOpen || state.skillOpen) {
     tickParticles(state, dt);
     refreshHud(state);
     return;

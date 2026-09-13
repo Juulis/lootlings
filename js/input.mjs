@@ -1,6 +1,6 @@
 import { toast } from "./hud.mjs";
 
-export function bindInput(state, { canvas, fireAttack, useSkill }) {
+export function bindInput(state, { canvas, fireAttack, useSkill, pickSkill, openSkillPick }) {
   window.addEventListener("keydown", (e) => {
     state.keys[e.key.toLowerCase()] = true;
     if (e.key === " " || e.code === "Space") {
@@ -12,10 +12,13 @@ export function bindInput(state, { canvas, fireAttack, useSkill }) {
       e.preventDefault();
       window.dispatchEvent(new CustomEvent("lootlings-inv"));
     }
-    if (e.key === "1") useSkill(state, "smash");
-    if (e.key === "2") useSkill(state, "star");
-    if (e.key === "3") useSkill(state, "volley");
+    if (e.key === "1" || e.key === "2" || e.key === "3") {
+      const id = e.key === "1" ? "smash" : e.key === "2" ? "star" : "volley";
+      if (state.skillOpen && pickSkill) pickSkill(state, id);
+      else useSkill(state, id);
+    }
     if (e.key.toLowerCase() === "k") {
+      if (openSkillPick && openSkillPick(state)) return;
       const n = state.hero?.skillPoints || 0;
       toast(n ? `Poäng ${n}. 1/2/3 låser upp.` : "Inga skillpoints. Levela mer.");
     }
