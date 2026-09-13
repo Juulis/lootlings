@@ -24,6 +24,7 @@ export function bindInput(state, { canvas, fireAttack, useSkill }) {
     state.keys[e.key.toLowerCase()] = false;
   });
   canvas.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
     state.pointer.down = true;
     aimFromEvent(state, canvas, e);
     fireAttack(state);
@@ -51,6 +52,7 @@ export function bindInput(state, { canvas, fireAttack, useSkill }) {
     knob.style.transform = `translate(${dx}px, ${dy}px)`;
   }
   stickEl.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
     stickEl.setPointerCapture(e.pointerId);
     state.stick.active = true;
     stickFrom(e);
