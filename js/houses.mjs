@@ -1,8 +1,12 @@
 import { HOUSE_KINDS, DECOR_SCALE } from "./decor-sprites.mjs";
 
+export function isHouse(kind) {
+  return HOUSE_KINDS.includes(kind);
+}
+
 export function pickHouse(rng) {
   const kind = HOUSE_KINDS[Math.floor(rng() * HOUSE_KINDS.length)];
-  const extra = rng() < 0.35 ? 1 : 0;
+  const extra = rng() < 0.35 ? 1 : rng() < 0.12 ? 2 : 0;
   return { kind, scale: (DECOR_SCALE[kind] || 5) + extra };
 }
 
