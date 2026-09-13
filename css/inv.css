@@ -1,13 +1,14 @@
 #d2hud {
   position: absolute;
   left: 50%;
-  bottom: 8px;
+  bottom: calc(8px + env(safe-area-inset-bottom, 0px));
   transform: translateX(-50%);
   display: flex;
   align-items: flex-end;
   gap: 10px;
   pointer-events: none;
   z-index: 5;
+  max-width: calc(100% - 24px);
 }
 .orb {
   position: relative;
@@ -98,7 +99,7 @@
   color: #2a1800;
   font-weight: 800;
 }
-.inv-card { max-width: 640px; }
+.inv-card { max-width: min(640px, 100%); }
 #inv-equip {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -133,13 +134,24 @@
 .inv-item:hover { filter: brightness(1.15); }
 .inv-empty { opacity: .7; }
 @media (max-width: 700px) and (orientation: landscape) {
-  .orb { width: 64px; height: 64px; }
-  .xp-wrap { width: min(180px, 30vw); height: 14px; }
-  #d2hud { bottom: 4px; }
+  .orb { width: 52px; height: 52px; }
+  .xp-wrap { width: min(140px, 26vw); height: 12px; margin-bottom: 4px; }
+  #d2hud { bottom: calc(4px + env(safe-area-inset-bottom, 0px)); gap: 6px; }
+  .invt { right: calc(140px + env(safe-area-inset-right, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); width: 40px; height: 40px; }
+}
+@media (pointer: coarse) and (max-height: 520px) {
+  .orb { width: 48px; height: 48px; }
+  .xp-wrap { width: min(120px, 22vw); height: 12px; margin-bottom: 2px; }
+  #d2hud { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); gap: 6px; }
+  .invt { right: calc(12px + env(safe-area-inset-right, 0px)); bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
 }
 @media (orientation: portrait) and (pointer: coarse) {
   .orb { width: 56px; height: 56px; }
   .xp-wrap { width: min(140px, 38vw); height: 14px; margin-bottom: 6px; }
-  #d2hud { bottom: 128px; gap: 6px; }
-  .invt { right: 12px; bottom: 100px; }
+  #d2hud { bottom: calc(118px + env(safe-area-inset-bottom, 0px)); gap: 6px; }
+  .invt { right: calc(12px + env(safe-area-inset-right, 0px)); bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (max-width: 520px) {
+  #inv-equip { grid-template-columns: repeat(2, 1fr); }
+  #inv-bag { max-height: 36vh; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
 }
