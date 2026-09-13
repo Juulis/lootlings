@@ -1,0 +1,38 @@
+.skill-open, .sklt {
+  background: #4f7fe8;
+  color: #fff8e7;
+  border: 3px solid #1e3a8a;
+  border-radius: 8px;
+  font-weight: 800;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+.sklt {
+  pointer-events: auto;
+  position: absolute;
+  right: 236px;
+  bottom: 30px;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border-radius: 10px;
+  border: 3px solid #fff8e7;
+}
+.skill-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #1a1028;
+  border: 3px solid #fff3;
+  border-radius: 12px;
+  padding: 10px;
+  margin: 8px 0;
+}
+.skill-row.active { box-shadow: 0 0 0 2px #ffe566; }
+.skill-row b { display: block; }
+.skill-row small { display: block; color: var(--muted); }
+.skill-row button { flex-shrink: 0; }
+@media (orientation: portrait) and (pointer: coarse) {
+  .sklt { right: 68px; bottom: 100px; }
+}
