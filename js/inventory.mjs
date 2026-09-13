@@ -2,6 +2,7 @@ import { bakeSprite, SLOT_SPRITES } from "./sprites.mjs";
 import { statsOf } from "./stats.mjs";
 import { log, refreshHud } from "./hud.mjs";
 import { inspectItem, bindHold } from "./item-info.mjs";
+import { iconFor } from "./gear-looks.mjs";
 
 export const MANA_COST = { knight: 16, mage: 28, archer: 18 };
 
@@ -52,6 +53,10 @@ export function hideItemTip() {
   document.getElementById("item-tip")?.classList.add("hidden");
 }
 
+function itemIcon(it, classId, slot) {
+  return bakeSprite(iconFor(it, classId, SLOT_SPRITES[slot || it?.slot] || "charm"), 3);
+}
+
 export function renderInv(state) {
   const overlay = document.getElementById("inv-overlay");
   if (!overlay || !state.hero) return;
@@ -69,7 +74,7 @@ export function renderInv(state) {
     const d = document.createElement("div");
     d.className = "inv-slot";
     d.style.borderColor = it?.color || "#c9a227";
-    d.innerHTML = `<img alt="" src="${bakeSprite(SLOT_SPRITES[slot] || "charm", 3)}" /><b>${slot}</b><small>${it ? `${it.name} +${it.power}` : "tom"}</small>`;
+    d.innerHTML = `<img alt="" src="${itemIcon(it, h.classId, slot)}" /><b>${slot}</b><small>${it ? `${it.name} +${it.power}` : "tom"}</small>`;
     bindHold(d, { onHold: () => showItemTip(it) });
     equip.appendChild(d);
   });
@@ -83,7 +88,7 @@ export function renderInv(state) {
     btn.type = "button";
     btn.className = "inv-item";
     btn.style.borderColor = it.color;
-    btn.innerHTML = `<img alt="" src="${bakeSprite(SLOT_SPRITES[it.slot] || "charm", 3)}" /><b style="color:${it.color}">${it.rarityName}</b><span>${it.name}</span><small>${it.slot} +${it.power}</small>`;
+    btn.innerHTML = `<img alt="" src="${itemIcon(it, h.classId)}" /><b style="color:${it.color}">${it.rarityName}</b><span>${it.name}</span><small>${it.slot} +${it.power}</small>`;
     bindHold(btn, {
       onHold: () => showItemTip(it),
       onTap: () => {

@@ -161,12 +161,14 @@ export function weaponFrame(classId, pose = "idle", timeMs = 0) {
   return frames[Math.floor(timeMs / 140) % frames.length];
 }
 
-export function drawHeldWeapon(ctx, classId, pose, hx, hy, flip, now, bob = 0) {
-  const frame = weaponFrame(classId, pose, now);
+export function drawHeldWeapon(ctx, classId, pose, hx, hy, flip, now, bob = 0, item = null) {
+  const look = item?.look && SPRITES[item.look] ? item.look : null;
+  const frame = look || weaponFrame(classId, pose, now);
   const side = flip ? -1 : 1;
-  const ox = classId === "knight" ? 20 : classId === "mage" ? 16 : 18;
-  const oy = pose === "attack" ? -6 : 2;
-  drawSprite(ctx, frame, hx + side * ox, hy + oy + bob, {
+  const ox = classId === "knight" ? 22 : classId === "mage" ? 16 : 20;
+  const oy = pose === "attack" ? -10 : 2;
+  const swing = pose === "attack" ? Math.sin(now / 50) * 6 : 0;
+  drawSprite(ctx, frame, hx + side * ox, hy + oy + bob + swing, {
     scale: 3,
     shadow: false,
     flip,

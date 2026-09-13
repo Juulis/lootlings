@@ -1,6 +1,7 @@
 import { drawHpBar, drawLootIcon, drawPortal, drawSprite } from "./sprites.mjs";
 import { poseFrame } from "./pose.mjs";
 import { drawHeldWeapon } from "./weapons.mjs";
+import { drawWornGear } from "./gear-looks.mjs";
 import { drawParticles } from "./fx.mjs";
 import { setSkillLabel } from "./hud.mjs";
 import { drawMap } from "./map.mjs";
@@ -34,7 +35,8 @@ export function draw(ctx, state, canvas) {
 
   state.pickups.forEach((p) => {
     const bounce = Math.sin(now / 140 + p.x) * 3;
-    if (p.slot) drawLootIcon(ctx, p.slot, p.x, p.y + bounce, p.color);
+    if (p.look) drawSprite(ctx, p.look, p.x, p.y + bounce, { scale: 3, shadow: false });
+    else if (p.slot) drawLootIcon(ctx, p.slot, p.x, p.y + bounce, p.color);
     else drawSprite(ctx, "gold", p.x, p.y + bounce, { scale: 3, shadow: false });
   });
 
@@ -57,12 +59,13 @@ export function draw(ctx, state, canvas) {
     const pose = state.attackFlash > 0 ? "attack" : moving ? "walk" : "idle";
     const flip = state.facingLeft;
     const bob = moving ? Math.sin(now / 90) * 2 : Math.sin(now / 400) * 1;
-    drawHeldWeapon(ctx, state.hero.classId, pose, state.pos.x, state.pos.y, flip, now, bob);
+    drawHeldWeapon(ctx, state.hero.classId, pose, state.pos.x, state.pos.y, flip, now, bob, state.hero.gear?.weapon);
     drawSprite(ctx, poseFrame(state.hero.classId, now, pose), state.pos.x, state.pos.y, {
       scale: 4,
       bob,
       flip,
     });
+    drawWornGear(ctx, state.hero, state.pos.x, state.pos.y, flip, pose, now, bob);
     if (state.attackFlash > 0 && state.hero.classId === "knight") {
       drawSprite(ctx, "slash", state.pos.x + (flip ? -26 : 26), state.pos.y - 4, {
         scale: 4, shadow: false, flip,
