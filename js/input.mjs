@@ -1,4 +1,5 @@
 import { toast } from "./hud.mjs";
+import { pickSkill } from "./skill-panel.mjs";
 
 export function bindInput(state, { canvas, fireAttack, useSkill }) {
   window.addEventListener("keydown", (e) => {
@@ -12,9 +13,11 @@ export function bindInput(state, { canvas, fireAttack, useSkill }) {
       e.preventDefault();
       window.dispatchEvent(new CustomEvent("lootlings-inv"));
     }
-    if (e.key === "1") useSkill(state, "smash");
-    if (e.key === "2") useSkill(state, "star");
-    if (e.key === "3") useSkill(state, "volley");
+    if (e.key === "1" || e.key === "2" || e.key === "3") {
+      const id = e.key === "1" ? "smash" : e.key === "2" ? "star" : "volley";
+      if (state.skillsOpen) pickSkill(state, id);
+      else useSkill(state, id);
+    }
     if (e.key.toLowerCase() === "k") {
       e.preventDefault();
       window.dispatchEvent(new CustomEvent("lootlings-skills"));

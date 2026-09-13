@@ -1,4 +1,4 @@
-import { SKILLS, SKILL_IDS, unlockSkill, setActiveSkill, skillStats, skillXpToLevel } from "./skills.mjs";
+import { SKILLS, SKILL_IDS, canUnlock, unlockSkill, setActiveSkill, skillStats, skillXpToLevel } from "./skills.mjs";
 import { log, refreshHud } from "./hud.mjs";
 
 export function toggleSkills(state) {
@@ -8,7 +8,40 @@ export function toggleSkills(state) {
   return state.skillsOpen;
 }
 
+export function openSkills(state) {
+  if (!state.hero || state.mode !== "play") return false;
+  state.skillsOpen = true;
+  state.invOpen = false;
+  renderSkills(state);
+  return true;
+}
+
+export function closeSkills(state) {
+  state.skillsOpen = false;
+  renderSkills(state);
+  return false;
+}
+
+export function pickSkill(state, id) {
+  const h = state.hero;
+  if (!h || !SKILLS[id]) return false;
+  if (h.skills?.[id]?.unlocked) {
+    setActiveSkill(h, id);
+    log(`${SKILLS[id].name} redo (E / B)`);
+  } else if (canUnlock(h, id)) {
+    unlockSkill(h, id);
+    log(`Låste upp ${SKILLS[id].name}!`);
+  } else {
+    return false;
+  }
+  refreshHud(state);
+  if ((h.skillPoints || 0) <= 0) state.skillsOpen = false;
+  renderSkills(state);
+  return true;
+}
+
 export function renderSkills(state) {
+  if (typeof document === "undefined") return;
   const overlay = document.getElementById("skill-overlay");
   if (!overlay || !state.hero) return;
   overlay.classList.toggle("hidden", !state.skillsOpen);
@@ -66,9 +99,6 @@ export function bindSkillPanel(state) {
   };
   document.getElementById("skill-btn")?.addEventListener("click", open);
   document.getElementById("skill-touch")?.addEventListener("click", open);
-  document.getElementById("skill-close")?.addEventListener("click", () => {
-    state.skillsOpen = false;
-    renderSkills(state);
-  });
+  document.getElementById("skill-close")?.addEventListener("click", () => closeSkills(state));
   window.addEventListener("lootlings-skills", open);
 }
