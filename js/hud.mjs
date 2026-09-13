@@ -5,6 +5,7 @@ import { SKILLS } from "./skills.mjs";
 import { versionLabel } from "./version.mjs";
 
 export function log(msg) {
+  if (typeof document === "undefined") return;
   const el = document.getElementById("log");
   if (!el) return;
   const line = document.createElement("div");
@@ -38,7 +39,7 @@ export function showVersion() {
 
 export function refreshHud(state) {
   const h = state.hero;
-  if (!h) return;
+  if (!h || typeof document === "undefined") return;
   const s = statsOf(h);
   const hp = Math.max(0, n(h.hp));
   const maxHp = Math.max(1, n(s.maxHp, 1));
@@ -97,6 +98,30 @@ export function renderMenu(onPick) {
     btn.innerHTML = `<img class="class-art" alt="" src="${thumb}" /><b>${c.name}</b><small>${c.blurb}</small><br><small>Smäll · Stjärna · Salva</small>`;
     btn.style.borderColor = c.color;
     btn.onclick = () => onPick(c.id);
+    box.appendChild(btn);
+  });
+}
+
+export function renderSkillMenu(state) {
+  if (typeof document === "undefined") return;
+  const box = document.getElementById("skill-picks");
+  const hint = document.getElementById("skill-hint");
+  if (!box || !state.hero) return;
+  const pts = state.hero.skillPoints || 0;
+  if (hint) hint.textContent = pts
+    ? `Du har ${pts} skillpoint. Tryck på en låst kraft för att lära den.`
+    : "Inga poäng just nu. Levela mer.";
+  box.innerHTML = "";
+  Object.values(SKILLS).forEach((def, i) => {
+    const sl = state.hero.skills?.[def.id];
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "class-btn";
+    btn.dataset.skill = def.id;
+    const status = sl?.unlocked ? `Nv ${sl.level}` : "Låst";
+    btn.innerHTML = `<b>${i + 1}. ${def.name}</b><small>${def.desc}</small><br><small>${status}</small>`;
+    btn.style.borderColor = sl?.unlocked ? def.color : "#fff3";
+    btn.style.opacity = sl?.unlocked || pts ? "1" : "0.55";
     box.appendChild(btn);
   });
 }
