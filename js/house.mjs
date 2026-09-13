@@ -1,6 +1,6 @@
 import { enemyStats, dist } from "./combat.mjs";
 import { log, toast } from "./hud.mjs";
-import { HOUSE_KINDS } from "./decor-sprites.mjs";
+import { HOUSE_KINDS } from "./houses.mjs";
 
 const TILE = 64;
 

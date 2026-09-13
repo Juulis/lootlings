@@ -1,3 +1,5 @@
+header { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+.skill-open { grid-column: 4; justify-self: end; flex-shrink: 0; }
 .skill-open, .sklt {
   background: #4f7fe8;
   color: #fff8e7;
