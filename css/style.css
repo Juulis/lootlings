@@ -243,3 +243,18 @@ button.ghost {
   pointer-events: none;
   box-shadow: 0 4px 0 #7a4e00;
 }
+#build-ver {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 6;
+  font-size: .72rem;
+  font-weight: 700;
+  color: #fff6d8cc;
+  background: #12082acc;
+  border: 2px solid #ffe56666;
+  border-radius: 8px;
+  padding: 4px 8px;
+  pointer-events: none;
+  letter-spacing: .02em;
+}
