@@ -9,6 +9,7 @@
   <title>Lootlings — skattjakt för barn</title>
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/inv.css" />
+  <link rel="stylesheet" href="css/skills.css" />
 </head>
 <body>
   <div id="app">
@@ -19,6 +20,7 @@
         <span id="hero-stats"></span>
       </div>
       <button type="button" id="inv-btn" class="inv-open">Väska</button>
+      <button type="button" id="skill-btn" class="skill-open">Krafter</button>
     </header>
     <div id="stage-wrap">
       <canvas id="game"></canvas>
@@ -32,6 +34,7 @@
         <button class="atk" id="atk-btn" type="button">A</button>
         <button class="skl" id="skl-btn" type="button">B</button>
         <button class="invt" id="inv-touch" type="button">I</button>
+        <button class="sklt" id="skill-touch" type="button">K</button>
       </div>
       <div id="d2hud">
         <div class="orb life">
@@ -53,7 +56,7 @@
         <div id="build-ver"></div>
         <div class="card">
           <h2>Välj din hjälte</h2>
-          <p>Gå ner i grottan. Välj en kraft med skillpoint. I öppnar väskan. WASD + håll attack. E / 1 2 3 är krafter.</p>
+          <p>Gå ner i grottan. Krafter / K öppnar kraftvalet. I öppnar väskan. WASD + håll attack.</p>
           <div class="classes" id="class-picks"></div>
         </div>
       </div>
@@ -66,6 +69,14 @@
           <h3>Ryggsäck</h3>
           <div id="inv-bag"></div>
           <button class="ghost" id="inv-close" type="button">Stäng</button>
+        </div>
+      </div>
+      <div class="overlay hidden" id="skill-overlay">
+        <div class="card inv-card">
+          <h2>Krafter</h2>
+          <p id="skill-pts"></p>
+          <div id="skill-list"></div>
+          <button class="ghost" id="skill-close" type="button">Stäng</button>
         </div>
       </div>
       <div class="overlay hidden" id="dead-overlay">
