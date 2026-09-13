@@ -216,5 +216,18 @@ button.ghost {
   color: var(--muted);
   margin-top: 2px;
 }
-#skill-overlay .classes { margin: 12px 0; }
-#skill-overlay .ghost { margin-top: 4px; }
+#toast {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  z-index: 5;
+  max-width: 240px;
+  background: #12082ae6;
+  border: 3px solid #ffe566;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: .85rem;
+  font-weight: 700;
+  pointer-events: none;
+  box-shadow: 0 4px 0 #7a4e00;
+}
