@@ -1,6 +1,6 @@
 import { createState } from "./game-state.mjs";
 import { renderMenu } from "./hud.mjs";
-import { startRun, bindLoot, bindAgain, bindSkills } from "./run.mjs";
+import { startRun, bindLoot, bindAgain, bindSkills, pickSkill, openSkillPick } from "./run.mjs";
 import { fireAttack, useSkill } from "./actions.mjs";
 import { bindInput } from "./input.mjs";
 import { update } from "./sim.mjs";
@@ -29,7 +29,7 @@ window.addEventListener("orientationchange", () => setTimeout(resize, 120));
 bindLoot(state);
 bindAgain(state);
 bindSkills(state);
-bindInput(state, { canvas, fireAttack, useSkill });
+bindInput(state, { canvas, fireAttack, useSkill, pickSkill, openSkillPick });
 bindInventory(state);
 bindAudio();
 window.addEventListener("lootlings-inv", () => document.getElementById("inv-btn")?.click());

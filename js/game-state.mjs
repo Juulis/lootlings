@@ -25,5 +25,6 @@ export function createState() {
     last: 0,
     portal: null,
     invOpen: false,
+    skillOpen: false,
   };
 }

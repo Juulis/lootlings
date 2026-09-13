@@ -3,6 +3,8 @@ import {
   gainSkillXp, skillXpToLevel, skillStats, applyLevelUpRewards, setActiveSkill,
 } from "../js/skills.mjs";
 import { createHero, applyLevelUp } from "../js/classes.mjs";
+import { createState } from "../js/game-state.mjs";
+import { openSkillPick, closeSkillPick, pickSkill, gainXp } from "../js/run.mjs";
 
 function assert(cond, msg) {
   if (!cond) throw new Error(msg);
@@ -62,6 +64,22 @@ test("level-up ger skillpoint", () => {
   assert(h.skillPoints === 2, "extra poäng");
   setActiveSkill(h, "smash");
   assert(h.activeSkill === "smash", "aktiv kvar");
+});
+
+test("level-up öppnar skillmeny", () => {
+  const state = createState();
+  state.hero = createHero("knight");
+  assert(openSkillPick(state) === true && state.skillOpen, "startpoäng öppnar");
+  assert(pickSkill(state, "smash") === true, "välj smäll");
+  assert(state.hero.skills.smash.unlocked, "upplåst");
+  assert(!state.skillOpen, "stängs när poängen är slut");
+  closeSkillPick(state);
+  state.hero.xp = state.hero.xpToLevel;
+  gainXp(state, 0);
+  assert(state.hero.level === 2, "level 2");
+  assert(state.skillOpen, "meny efter level");
+  assert(pickSkill(state, "star") === true, "andra kraften");
+  assert(state.hero.skills.star.unlocked && state.hero.skillPoints === 0, "poäng använd");
 });
 
 console.log(`\n${passed} tester godkända`);
