@@ -52,21 +52,21 @@ export function fireAttack(state) {
 
 export function useSkill(state, skillId) {
   const h = state.hero;
-  if (!h || state.invOpen || state.skillsOpen) return;
+  if (!h || state.invOpen || state.skillsOpen) return false;
   const id = skillId || h.activeSkill;
   const slot = id && h.skills?.[id];
-  if (!slot) return;
+  if (!slot) return false;
   if (!slot.unlocked) {
     if ((h.skillPoints || 0) > 0) {
       unlockSkill(h, id);
       log(`Låste upp ${SKILLS[id].name}!`);
     } else {
       log("Ingen poäng. Levela för att låsa upp.");
-      return;
+      return false;
     }
   }
   const cdLeft = (state.skillCds && state.skillCds[id]) || 0;
-  if (cdLeft > 0) return;
+  if (cdLeft > 0) return false;
   setActiveSkill(h, id);
   const def = SKILLS[id];
   const st = skillStats(def, slot);
@@ -74,13 +74,14 @@ export function useSkill(state, skillId) {
   const cost = 12 + slot.level * 4;
   if ((h.mana || 0) < cost) {
     log("Inte tillräckligt med mana!");
-    return;
+    return false;
   }
   h.mana -= cost;
   state.skillCds = state.skillCds || {};
   state.skillCds[id] = st.cd;
   state.skillTimer = st.cd;
   const dmg = s.damage * 1.35 * st.dmgMult;
+  burst(state, state.pos.x, state.pos.y, def.color);
   if (def.type === "melee") {
     state.enemies.forEach((en) => {
       if (dist(state.pos, en) < st.radius) {
@@ -91,18 +92,21 @@ export function useSkill(state, skillId) {
       }
     });
   } else if (def.type === "aoe") {
-    const t = nearestEnemy(state) || { x: state.pos.x + 80, y: state.pos.y };
+    const face = state.facingLeft ? -1 : 1;
+    const t = nearestEnemy(state) || { x: state.pos.x + face * 90, y: state.pos.y };
     state.projectiles.push({
-      x: t.x, y: t.y, vx: 0, vy: 0, dmg, r: 62 + slot.level * 4, life: 0.35, splash: true, star: true,
+      x: t.x, y: t.y, vx: 0, vy: 0, dmg, r: 62 + slot.level * 4, life: 0.55, splash: true, star: true,
     });
   } else {
-    const t = nearestEnemy(state) || { x: state.pos.x + 80, y: state.pos.y };
+    const face = state.facingLeft ? -1 : 1;
+    const t = nearestEnemy(state) || { x: state.pos.x + face * 90, y: state.pos.y };
     for (let i = -1; i <= 1; i++) {
       spawnShot(state, { x: t.x, y: t.y + i * 18 }, dmg * 0.8, 10, false);
     }
   }
   const res = gainSkillXp(h, id, 10);
   log(res.leveled ? `${def.name} Nv ${res.level}!` : `${def.name}!`);
+  return true;
 }
 
 export function tickProjectiles(state, dt) {

@@ -1,6 +1,16 @@
 import { toast } from "./hud.mjs";
 import { pickSkill } from "./skill-panel.mjs";
 
+/** 1/2/3 = namngiven kraft. B/E/Shift = aktiv (blå B-knapp). */
+export function skillHotkey(key) {
+  const k = String(key || "").toLowerCase();
+  if (k === "1") return "smash";
+  if (k === "2") return "star";
+  if (k === "3") return "volley";
+  if (k === "e" || k === "b" || k === "shift") return "active";
+  return null;
+}
+
 export function bindInput(state, { canvas, fireAttack, useSkill }) {
   window.addEventListener("keydown", (e) => {
     state.keys[e.key.toLowerCase()] = true;
@@ -8,15 +18,15 @@ export function bindInput(state, { canvas, fireAttack, useSkill }) {
       e.preventDefault();
       fireAttack(state);
     }
-    if (e.key.toLowerCase() === "e" || e.key === "Shift") useSkill(state);
     if (e.key.toLowerCase() === "i" || e.key === "Tab") {
       e.preventDefault();
       window.dispatchEvent(new CustomEvent("lootlings-inv"));
     }
-    if (e.key === "1" || e.key === "2" || e.key === "3") {
-      const id = e.key === "1" ? "smash" : e.key === "2" ? "star" : "volley";
-      if (state.skillsOpen) pickSkill(state, id);
-      else useSkill(state, id);
+    const hot = skillHotkey(e.key);
+    if (hot === "active") useSkill(state);
+    else if (hot) {
+      if (state.skillsOpen) pickSkill(state, hot);
+      else useSkill(state, hot);
     }
     if (e.key.toLowerCase() === "k") {
       e.preventDefault();
@@ -84,7 +94,12 @@ export function bindInput(state, { canvas, fireAttack, useSkill }) {
   atkBtn.addEventListener("pointercancel", () => {
     state.touchAttack = false;
   });
-  document.getElementById("skl-btn").onclick = () => useSkill(state);
+  const sklBtn = document.getElementById("skl-btn");
+  sklBtn.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    useSkill(state);
+  });
 }
 
 function aimFromEvent(state, canvas, e) {
