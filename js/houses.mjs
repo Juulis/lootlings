@@ -1,0 +1,15 @@
+import { HOUSE_KINDS, DECOR_SCALE } from "./decor-sprites.mjs";
+
+export function pickHouse(rng) {
+  const kind = HOUSE_KINDS[Math.floor(rng() * HOUSE_KINDS.length)];
+  const extra = rng() < 0.35 ? 1 : 0;
+  return { kind, scale: (DECOR_SCALE[kind] || 5) + extra };
+}
+
+export function diversifyHouses(props, rng) {
+  return props.map((p) => {
+    if (p.kind !== "cottage") return p;
+    const house = pickHouse(rng);
+    return { ...p, ...house, solid: true };
+  });
+}
