@@ -30,7 +30,7 @@ export function draw(ctx, state, canvas) {
     drawPortal(ctx, state.portal.x, state.portal.y, now);
     ctx.fillStyle = "#fff8e7";
     ctx.font = "bold 13px Trebuchet MS";
-    ctx.fillText("Nästa", state.portal.x - 16, state.portal.y + 38);
+    ctx.fillText(state.indoor ? "Ut" : "Nästa", state.portal.x - 16, state.portal.y + 38);
   }
 
   state.pickups.forEach((p) => {
