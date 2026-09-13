@@ -31,7 +31,7 @@ export function spawnShot(state, aim, dmg, r, splash) {
 
 export function fireAttack(state) {
   const h = state.hero;
-  if (!h || state.mode !== "play" || state.invOpen || state.attackTimer > 0) return;
+  if (!h || state.mode !== "play" || state.invOpen || state.skillsOpen || state.attackTimer > 0) return;
   const s = statsOf(h);
   state.attackTimer = h.attackCd;
   state.attackFlash = 0.22;
@@ -52,7 +52,7 @@ export function fireAttack(state) {
 
 export function useSkill(state, skillId) {
   const h = state.hero;
-  if (!h || state.invOpen) return;
+  if (!h || state.invOpen || state.skillsOpen) return;
   const id = skillId || h.activeSkill;
   const slot = id && h.skills?.[id];
   if (!slot) return;
