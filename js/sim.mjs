@@ -3,16 +3,12 @@ import { statsOf } from "./stats.mjs";
 import { refreshHud } from "./hud.mjs";
 import { burst, tickParticles } from "./fx.mjs";
 import { die, nextFloor } from "./run.mjs";
-import { fireAttack, nearestEnemy, tickProjectiles } from "./actions.mjs";
+import { fireAttack, tickProjectiles } from "./actions.mjs";
 import { regenMana } from "./inventory.mjs";
 
 export function update(state, dt) {
   if (state.mode !== "play" || !state.hero) return;
-  if (state.invOpen) {
-    tickParticles(state, dt);
-    refreshHud(state);
-    return;
-  }
+  if (state.invOpen) { tickParticles(state, dt); return; }
   const h = state.hero;
   const s = statsOf(h);
   state.attackTimer = Math.max(0, state.attackTimer - dt);
@@ -34,7 +30,6 @@ export function update(state, dt) {
   if (move.mx < -0.15) state.facingLeft = true;
   else if (move.mx > 0.15) state.facingLeft = false;
 
-  const target = nearestEnemy(state);
   const held = isAttackHeld({
     keys: state.keys,
     pointerDown: state.pointer.down,
@@ -42,7 +37,6 @@ export function update(state, dt) {
   });
   if (shouldSwing({
     held,
-    targetInRange: inRange(state.pos, target || { x: 1e9, y: 1e9 }, s.range),
     attackTimer: state.attackTimer,
   })) {
     fireAttack(state);
@@ -62,11 +56,11 @@ export function update(state, dt) {
       en.cd = en.isBoss ? 1.1 : 1.35;
       burst(state, state.pos.x, state.pos.y, "#ff6b8a");
       if (h.hp <= 0) die(state);
+      refreshHud(state);
     }
   });
 
   tickProjectiles(state, dt);
   if (state.portal && dist(state.pos, state.portal) < 46) nextFloor(state);
   tickParticles(state, dt);
-  refreshHud(state);
 }
