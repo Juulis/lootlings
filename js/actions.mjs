@@ -4,7 +4,7 @@ import { statsOf } from "./stats.mjs";
 import { log } from "./hud.mjs";
 import { burst } from "./fx.mjs";
 import { killEnemy } from "./run.mjs";
-import { SKILLS, skillStats, gainSkillXp, setActiveSkill } from "./skills.mjs";
+import { SKILLS, skillStats, gainSkillXp, setActiveSkill, unlockSkill } from "./skills.mjs";
 
 export function nearestEnemy(state) {
   return nearestTarget(state.pos, state.enemies);
@@ -55,9 +55,15 @@ export function useSkill(state, skillId) {
   if (!h || state.invOpen) return;
   const id = skillId || h.activeSkill;
   const slot = id && h.skills?.[id];
-  if (!slot?.unlocked) {
-    log("Lås upp en kraft med skillpoint vid level-up!");
-    return;
+  if (!slot) return;
+  if (!slot.unlocked) {
+    if ((h.skillPoints || 0) > 0) {
+      unlockSkill(h, id);
+      log(`Låste upp ${SKILLS[id].name}!`);
+    } else {
+      log("Ingen poäng. Levela för att låsa upp.");
+      return;
+    }
   }
   const cdLeft = (state.skillCds && state.skillCds[id]) || 0;
   if (cdLeft > 0) return;

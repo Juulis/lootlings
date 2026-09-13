@@ -29,6 +29,7 @@
     </header>
     <div id="stage-wrap">
       <canvas id="game"></canvas>
+      <div id="toast" class="hidden"></div>
       <div id="hud-right">
         <div id="gear"></div>
         <div id="log"></div>
@@ -60,22 +61,6 @@
           <h2>Välj din hjälte</h2>
           <p>Gå ner i grottan. Välj en kraft med skillpoint. I öppnar väskan. WASD + håll attack. E / 1 2 3 är krafter.</p>
           <div class="classes" id="class-picks"></div>
-        </div>
-      </div>
-      <div class="overlay hidden" id="loot-overlay">
-        <div class="card">
-          <h2>Ny skatt!</h2>
-          <div id="loot-body"></div>
-          <button class="primary" id="take-loot" type="button">Ta på</button>
-          <button class="ghost" id="skip-loot" type="button">Spara i väskan</button>
-        </div>
-      </div>
-      <div class="overlay hidden" id="skill-overlay">
-        <div class="card">
-          <h2 id="skill-title">Välj en kraft</h2>
-          <p>Lås upp med skillpoint vid level-up. Sen blir kraften starkare när du använder den. 1/2/3 eller E.</p>
-          <div class="classes" id="skill-picks"></div>
-          <button class="ghost" id="skill-later" type="button">Senare</button>
         </div>
       </div>
       <div class="overlay hidden" id="inv-overlay">
